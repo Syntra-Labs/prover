@@ -1,0 +1,4 @@
+- use local model like qwen instruct
+- use local voice model like kokoro
+- setup pipeline speech -> qwen -> text -> kokoro -> audio
+so basically speech to speech to be able to conversate out loud with the local model
