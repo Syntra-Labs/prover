@@ -1,23 +1,20 @@
+include(CheckCXXCompilerFlag)
+
 cmake_minimum_required(VERSION 3.5)
+project(prover)
 
-project(lawful LANGUAGES CXX)
+check_cxx_compiler_flag("-std=c++11" COMPILER_SUPPORTS_CXX11)
 
-# Creates the library where python module will be placed.
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+if(COMPILER_SUPPORTS_CXX11)
+    set(CMAKE_CXX_STANDARD 11)
+    set(CMAKE_CXX_STANDARD_REQUIRED True)
+else()
+    message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} does not support C++11")
+endif()
 
-# Set python paths.
-# Cmake's find() was not able to find them.
-set(Python3_EXECUTABLE "/usr/bin/python3")
-set(Python3_INCLUDE_DIR "/usr/include/python3.12")
-set(Python3_LIBRARY "/lib/python3.12")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/my_bin)
 
-set(SOURCE
-    tests.cpp
-    symbolic.cpp
-    symbolic.hpp
+add_executable(prover
+    src/process.cpp
+    src/parseJsonl.cpp
 )
-
-# Automatically locate pybind11
-find_package( pybind11 CONFIG REQUIRED )
-
-target_link_libraries(lawful PUBLIC pybind::embed)
