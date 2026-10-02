@@ -5,6 +5,7 @@
 #include <fstream>
 #include <cstdio>
 #include <regex>
+#include <vector>
 #include "parseJsonl.hpp"
 
 extern "C" {
@@ -16,6 +17,7 @@ extern "C" {
 #include <unistd.h>
 }
 
-void callModel(bool);
+void process_statement();
+int main();
 
 #endif // PROCESS_H
