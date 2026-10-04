@@ -3,6 +3,8 @@ include(CheckCXXCompilerFlag)
 cmake_minimum_required(VERSION 3.5)
 project(prover)
 
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
+
 check_cxx_compiler_flag("-std=c++11" COMPILER_SUPPORTS_CXX11)
 
 if(COMPILER_SUPPORTS_CXX11)

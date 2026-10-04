@@ -1,17 +1,18 @@
 #!/bin/bash
 
 # Create a new temporary file
-touch /home/yassine/.lgccTemp
+LGCC_TEMP="/home/yassine/code/prover/build/lgccTemp"
+touch "$LGCC_TEMP"
 # append to it the source file
 # FIXME: don't hardcord the source code
-cat "/home/yassine/code/prover/src/process.cpp" > /home/yassine/.lgccTemp
+cat "/home/yassine/code/prover/src/process.cpp" > "$LGCC_TEMP"
 
 # FIXME: for now we're assuming that the files will be cpp, but we should add support for other languages in the future
 # compile the file with cmake and 
 # append the output to the temporary file
 cd /home/yassine/code/prover/build/
-cmake .. >> /home/yassine/.lgccTemp
-make >> /home/yassine/.lgccTemp
+cmake .. >> "$LGCC_TEMP"
+make >> "$LGCC_TEMP"
 
 llama-cli -m ~/code/prover/vendor/models/qwen2.5-coder-7b-instruct-q6_k.gguf -ngl 12 -t 8 -c 4096 --no-display-prompt -sys "You are a strict logical error detector. Focus exclusively on logic bugs (e.g., off-by-one, edge cases). Ignore styling, naming, and syntax. Output exactly one line per error in this format: [line N] <concise description>. Do not rewrite code. Do not include conversational filler or markdown." -f ./lgccTemp
 
