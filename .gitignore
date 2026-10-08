@@ -1,2 +1,4 @@
 vendor/
 build/
+.venv/
+lean_cache/
