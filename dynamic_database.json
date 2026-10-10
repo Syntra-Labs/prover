@@ -1,0 +1,805 @@
+{
+  "repositories": [
+    {
+      "url": "https://github.com/durant42040/lean4-example",
+      "name": "durant42040/lean4-example",
+      "commit": "3e23ab0bfdcfdbd5b11ab53c2cd8b5d16492e9c2",
+      "lean_version": "v4.29.1",
+      "lean_dojo_version": "4.20.0",
+      "metadata": {
+        "date_processed": "2026-10-10T20:55:25.756490"
+      },
+      "total_theorems": 20,
+      "num_proven_theorems": 17,
+      "num_sorry_theorems": 3,
+      "num_sorry_theorems_proved": 0,
+      "num_sorry_theorems_unproved": 3,
+      "num_premise_files": 0,
+      "num_premises": 0,
+      "num_files_traced": 1,
+      "proven_theorems": [
+        {
+          "full_name": "mul_assoc_my_2",
+          "theorem_statement": "theorem mul_assoc_my_2 : ∀ a b c : Nat, (a * b) * c = a * (b * c) :=",
+          "file_path": "Lean4Example.lean",
+          "start": "(39, 1)",
+          "end": "(42, 41)",
+          "url": "https://github.com/durant42040/lean4-example",
+          "commit": "3e23ab0bfdcfdbd5b11ab53c2cd8b5d16492e9c2",
+          "traced_tactics": [
+            {
+              "tactic": "intro a b c",
+              "annotated_tactic": [
+                "intro a b c",
+                []
+              ],
+              "state_before": "⊢ ∀ (a b c : Nat), a * b * c = a * (b * c)",
+              "state_after": "a b c : Nat\n⊢ a * b * c = a * (b * c)"
+            },
+            {
+              "tactic": "simp [Nat.mul_comm]",
+              "annotated_tactic": [
+                "simp [<a>Nat.mul_comm</a>]",
+                [
+                  {
+                    "full_name": "Nat.mul_comm",
+                    "def_path": ".lake/packages/lean4/src/lean/Init/Data/Nat/Basic.lean",
+                    "def_pos": "(215, 19)",
+                    "def_end_pos": "(215, 27)"
+                  }
+                ]
+              ],
+              "state_before": "a b c : Nat\n⊢ a * b * c = a * (b * c)",
+              "state_after": "a b c : Nat\n⊢ c * (a * b) = a * (b * c)"
+            },
+            {
+              "tactic": "simp [Nat.mul_comm, Nat.mul_left_comm]",
+              "annotated_tactic": [
+                "simp [<a>Nat.mul_comm</a>, <a>Nat.mul_left_comm</a>]",
+                [
+                  {
+                    "full_name": "Nat.mul_comm",
+                    "def_path": ".lake/packages/lean4/src/lean/Init/Data/Nat/Basic.lean",
+                    "def_pos": "(215, 19)",
+                    "def_end_pos": "(215, 27)"
+                  },
+                  {
+                    "full_name": "Nat.mul_left_comm",
+                    "def_path": ".lake/packages/lean4/src/lean/Init/Data/Nat/Basic.lean",
+                    "def_pos": "(248, 19)",
+                    "def_end_pos": "(248, 32)"
+                  }
+                ]
+              ],
+              "state_before": "a b c : Nat\n⊢ c * (a * b) = a * (b * c)",
+              "state_after": "no goals"
+            }
+          ],
+          "difficulty_rating": 20.085536923187668
+        },
+        {
+          "full_name": "my_add_comm_1",
+          "theorem_statement": "theorem my_add_comm_1 (n m : Nat) : n + m = m + n :=",
+          "file_path": "Lean4Example.lean",
+          "start": "(17, 1)",
+          "end": "(18, 20)",
+          "url": "https://github.com/durant42040/lean4-example",
+          "commit": "3e23ab0bfdcfdbd5b11ab53c2cd8b5d16492e9c2",
+          "traced_tactics": [
+            {
+              "tactic": "rw [Nat.add_comm]",
+              "annotated_tactic": [
+                "rw [<a>Nat.add_comm</a>]",
+                [
+                  {
+                    "full_name": "Nat.add_comm",
+                    "def_path": ".lake/packages/lean4/src/lean/Init/Data/Nat/Basic.lean",
+                    "def_pos": "(158, 19)",
+                    "def_end_pos": "(158, 27)"
+                  }
+                ]
+              ],
+              "state_before": "n m : Nat\n⊢ n + m = m + n",
+              "state_after": "no goals"
+            }
+          ],
+          "difficulty_rating": 2.718281828459045
+        },
+        {
+          "full_name": "succ_add_succ",
+          "theorem_statement": "theorem succ_add_succ (a b : Nat) : Nat.succ a + Nat.succ b = Nat.succ (Nat.succ (a + b)) :=",
+          "file_path": "Lean4Example.lean",
+          "start": "(4, 1)",
+          "end": "(5, 77)",
+          "url": "https://github.com/durant42040/lean4-example",
+          "commit": "3e23ab0bfdcfdbd5b11ab53c2cd8b5d16492e9c2",
+          "traced_tactics": [
+            {
+              "tactic": "simp [Nat.succ_eq_add_one, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm]",
+              "annotated_tactic": [
+                "simp [<a>Nat.succ_eq_add_one</a>, <a>Nat.add_assoc</a>, <a>Nat.add_comm</a>, <a>Nat.add_left_comm</a>]",
+                [
+                  {
+                    "full_name": "Nat.succ_eq_add_one",
+                    "def_path": ".lake/packages/lean4/src/lean/Init/Data/Nat/Basic.lean",
+                    "def_pos": "(152, 17)",
+                    "def_end_pos": "(152, 32)"
+                  },
+                  {
+                    "full_name": "Nat.add_assoc",
+                    "def_path": ".lake/packages/lean4/src/lean/Init/Data/Nat/Basic.lean",
+                    "def_pos": "(166, 19)",
+                    "def_end_pos": "(166, 28)"
+                  },
+                  {
+                    "full_name": "Nat.add_comm",
+                    "def_path": ".lake/packages/lean4/src/lean/Init/Data/Nat/Basic.lean",
+                    "def_pos": "(158, 19)",
+                    "def_end_pos": "(158, 27)"
+                  },
+                  {
+                    "full_name": "Nat.add_left_comm",
+                    "def_path": ".lake/packages/lean4/src/lean/Init/Data/Nat/Basic.lean",
+                    "def_pos": "(171, 19)",
+                    "def_end_pos": "(171, 32)"
+                  }
+                ]
+              ],
+              "state_before": "a b : Nat\n⊢ a.succ + b.succ = (a + b).succ.succ",
+              "state_after": "no goals"
+            }
+          ],
+          "difficulty_rating": 2.718281828459045
+        },
+        {
+          "full_name": "my_and_comm_3",
+          "theorem_statement": "theorem my_and_comm_3 : ∀ {p q : Prop}, And p q → And q p :=",
+          "file_path": "Lean4Example.lean",
+          "start": "(60, 1)",
+          "end": "(63, 17)",
+          "url": "https://github.com/durant42040/lean4-example",
+          "commit": "3e23ab0bfdcfdbd5b11ab53c2cd8b5d16492e9c2",
+          "traced_tactics": [
+            {
+              "tactic": "simp",
+              "annotated_tactic": [
+                "simp",
+                []
+              ],
+              "state_before": "⊢ ∀ {p q : Prop}, p ∧ q → q ∧ p",
+              "state_after": "⊢ ∀ {p q : Prop}, p → q → q ∧ p"
+            },
+            {
+              "tactic": "intro p q hp hq",
+              "annotated_tactic": [
+                "intro p q hp hq",
+                []
+              ],
+              "state_before": "⊢ ∀ {p q : Prop}, p → q → q ∧ p",
+              "state_after": "p q : Prop\nhp : p\nhq : q\n⊢ q ∧ p"
+            },
+            {
+              "tactic": "exact ⟨hq, hp⟩",
+              "annotated_tactic": [
+                "exact ⟨hq, hp⟩",
+                []
+              ],
+              "state_before": "p q : Prop\nhp : p\nhq : q\n⊢ q ∧ p",
+              "state_after": "no goals"
+            }
+          ],
+          "difficulty_rating": 20.085536923187668
+        },
+        {
+          "full_name": "mul_assoc_my_1",
+          "theorem_statement": "theorem mul_assoc_my_1 : ∀ a b c : Nat, (a * b) * c = a * (b * c) :=",
+          "file_path": "Lean4Example.lean",
+          "start": "(23, 1)",
+          "end": "(26, 41)",
+          "url": "https://github.com/durant42040/lean4-example",
+          "commit": "3e23ab0bfdcfdbd5b11ab53c2cd8b5d16492e9c2",
+          "traced_tactics": [
+            {
+              "tactic": "intro a b c",
+              "annotated_tactic": [
+                "intro a b c",
+                []
+              ],
+              "state_before": "⊢ ∀ (a b c : Nat), a * b * c = a * (b * c)",
+              "state_after": "a b c : Nat\n⊢ a * b * c = a * (b * c)"
+            },
+            {
+              "tactic": "simp [Nat.mul_comm]",
+              "annotated_tactic": [
+                "simp [<a>Nat.mul_comm</a>]",
+                [
+                  {
+                    "full_name": "Nat.mul_comm",
+                    "def_path": ".lake/packages/lean4/src/lean/Init/Data/Nat/Basic.lean",
+                    "def_pos": "(215, 19)",
+                    "def_end_pos": "(215, 27)"
+                  }
+                ]
+              ],
+              "state_before": "a b c : Nat\n⊢ a * b * c = a * (b * c)",
+              "state_after": "a b c : Nat\n⊢ c * (a * b) = a * (b * c)"
+            },
+            {
+              "tactic": "simp [Nat.mul_comm, Nat.mul_left_comm]",
+              "annotated_tactic": [
+                "simp [<a>Nat.mul_comm</a>, <a>Nat.mul_left_comm</a>]",
+                [
+                  {
+                    "full_name": "Nat.mul_comm",
+                    "def_path": ".lake/packages/lean4/src/lean/Init/Data/Nat/Basic.lean",
+                    "def_pos": "(215, 19)",
+                    "def_end_pos": "(215, 27)"
+                  },
+                  {
+                    "full_name": "Nat.mul_left_comm",
+                    "def_path": ".lake/packages/lean4/src/lean/Init/Data/Nat/Basic.lean",
+                    "def_pos": "(248, 19)",
+                    "def_end_pos": "(248, 32)"
+                  }
+                ]
+              ],
+              "state_before": "a b c : Nat\n⊢ c * (a * b) = a * (b * c)",
+              "state_after": "no goals"
+            }
+          ],
+          "difficulty_rating": 20.085536923187668
+        },
+        {
+          "full_name": "mul_assoc_my_4",
+          "theorem_statement": "theorem mul_assoc_my_4 : ∀ a b c : Nat, (a * b) * c = a * (b * c) :=",
+          "file_path": "Lean4Example.lean",
+          "start": "(71, 1)",
+          "end": "(74, 41)",
+          "url": "https://github.com/durant42040/lean4-example",
+          "commit": "3e23ab0bfdcfdbd5b11ab53c2cd8b5d16492e9c2",
+          "traced_tactics": [
+            {
+              "tactic": "intro a b c",
+              "annotated_tactic": [
+                "intro a b c",
+                []
+              ],
+              "state_before": "⊢ ∀ (a b c : Nat), a * b * c = a * (b * c)",
+              "state_after": "a b c : Nat\n⊢ a * b * c = a * (b * c)"
+            },
+            {
+              "tactic": "simp [Nat.mul_comm]",
+              "annotated_tactic": [
+                "simp [<a>Nat.mul_comm</a>]",
+                [
+                  {
+                    "full_name": "Nat.mul_comm",
+                    "def_path": ".lake/packages/lean4/src/lean/Init/Data/Nat/Basic.lean",
+                    "def_pos": "(215, 19)",
+                    "def_end_pos": "(215, 27)"
+                  }
+                ]
+              ],
+              "state_before": "a b c : Nat\n⊢ a * b * c = a * (b * c)",
+              "state_after": "a b c : Nat\n⊢ c * (a * b) = a * (b * c)"
+            },
+            {
+              "tactic": "simp [Nat.mul_comm, Nat.mul_left_comm]",
+              "annotated_tactic": [
+                "simp [<a>Nat.mul_comm</a>, <a>Nat.mul_left_comm</a>]",
+                [
+                  {
+                    "full_name": "Nat.mul_comm",
+                    "def_path": ".lake/packages/lean4/src/lean/Init/Data/Nat/Basic.lean",
+                    "def_pos": "(215, 19)",
+                    "def_end_pos": "(215, 27)"
+                  },
+                  {
+                    "full_name": "Nat.mul_left_comm",
+                    "def_path": ".lake/packages/lean4/src/lean/Init/Data/Nat/Basic.lean",
+                    "def_pos": "(248, 19)",
+                    "def_end_pos": "(248, 32)"
+                  }
+                ]
+              ],
+              "state_before": "a b c : Nat\n⊢ c * (a * b) = a * (b * c)",
+              "state_after": "no goals"
+            }
+          ],
+          "difficulty_rating": 20.085536923187668
+        },
+        {
+          "full_name": "my_add_comm_4",
+          "theorem_statement": "theorem my_add_comm_4 (n m : Nat) : n + m = m + n :=",
+          "file_path": "Lean4Example.lean",
+          "start": "(65, 1)",
+          "end": "(66, 20)",
+          "url": "https://github.com/durant42040/lean4-example",
+          "commit": "3e23ab0bfdcfdbd5b11ab53c2cd8b5d16492e9c2",
+          "traced_tactics": [
+            {
+              "tactic": "rw [Nat.add_comm]",
+              "annotated_tactic": [
+                "rw [<a>Nat.add_comm</a>]",
+                [
+                  {
+                    "full_name": "Nat.add_comm",
+                    "def_path": ".lake/packages/lean4/src/lean/Init/Data/Nat/Basic.lean",
+                    "def_pos": "(158, 19)",
+                    "def_end_pos": "(158, 27)"
+                  }
+                ]
+              ],
+              "state_before": "n m : Nat\n⊢ n + m = m + n",
+              "state_after": "no goals"
+            }
+          ],
+          "difficulty_rating": 2.718281828459045
+        },
+        {
+          "full_name": "my_add_comm",
+          "theorem_statement": "theorem my_add_comm (n m : Nat) : n + m = m + n :=",
+          "file_path": "Lean4Example.lean",
+          "start": "(1, 1)",
+          "end": "(2, 20)",
+          "url": "https://github.com/durant42040/lean4-example",
+          "commit": "3e23ab0bfdcfdbd5b11ab53c2cd8b5d16492e9c2",
+          "traced_tactics": [
+            {
+              "tactic": "rw [Nat.add_comm]",
+              "annotated_tactic": [
+                "rw [<a>Nat.add_comm</a>]",
+                [
+                  {
+                    "full_name": "Nat.add_comm",
+                    "def_path": ".lake/packages/lean4/src/lean/Init/Data/Nat/Basic.lean",
+                    "def_pos": "(158, 19)",
+                    "def_end_pos": "(158, 27)"
+                  }
+                ]
+              ],
+              "state_before": "n m : Nat\n⊢ n + m = m + n",
+              "state_after": "no goals"
+            }
+          ],
+          "difficulty_rating": 2.718281828459045
+        },
+        {
+          "full_name": "my_and_comm_4",
+          "theorem_statement": "theorem my_and_comm_4 : ∀ {p q : Prop}, And p q → And q p :=",
+          "file_path": "Lean4Example.lean",
+          "start": "(76, 1)",
+          "end": "(79, 17)",
+          "url": "https://github.com/durant42040/lean4-example",
+          "commit": "3e23ab0bfdcfdbd5b11ab53c2cd8b5d16492e9c2",
+          "traced_tactics": [
+            {
+              "tactic": "simp",
+              "annotated_tactic": [
+                "simp",
+                []
+              ],
+              "state_before": "⊢ ∀ {p q : Prop}, p ∧ q → q ∧ p",
+              "state_after": "⊢ ∀ {p q : Prop}, p → q → q ∧ p"
+            },
+            {
+              "tactic": "intro p q hp hq",
+              "annotated_tactic": [
+                "intro p q hp hq",
+                []
+              ],
+              "state_before": "⊢ ∀ {p q : Prop}, p → q → q ∧ p",
+              "state_after": "p q : Prop\nhp : p\nhq : q\n⊢ q ∧ p"
+            },
+            {
+              "tactic": "exact ⟨hq, hp⟩",
+              "annotated_tactic": [
+                "exact ⟨hq, hp⟩",
+                []
+              ],
+              "state_before": "p q : Prop\nhp : p\nhq : q\n⊢ q ∧ p",
+              "state_after": "no goals"
+            }
+          ],
+          "difficulty_rating": 20.085536923187668
+        },
+        {
+          "full_name": "my_add_comm_3",
+          "theorem_statement": "theorem my_add_comm_3 (n m : Nat) : n + m = m + n :=",
+          "file_path": "Lean4Example.lean",
+          "start": "(49, 1)",
+          "end": "(50, 20)",
+          "url": "https://github.com/durant42040/lean4-example",
+          "commit": "3e23ab0bfdcfdbd5b11ab53c2cd8b5d16492e9c2",
+          "traced_tactics": [
+            {
+              "tactic": "rw [Nat.add_comm]",
+              "annotated_tactic": [
+                "rw [<a>Nat.add_comm</a>]",
+                [
+                  {
+                    "full_name": "Nat.add_comm",
+                    "def_path": ".lake/packages/lean4/src/lean/Init/Data/Nat/Basic.lean",
+                    "def_pos": "(158, 19)",
+                    "def_end_pos": "(158, 27)"
+                  }
+                ]
+              ],
+              "state_before": "n m : Nat\n⊢ n + m = m + n",
+              "state_after": "no goals"
+            }
+          ],
+          "difficulty_rating": 2.718281828459045
+        },
+        {
+          "full_name": "mul_assoc_my",
+          "theorem_statement": "theorem mul_assoc_my : ∀ a b c : Nat, (a * b) * c = a * (b * c) :=",
+          "file_path": "Lean4Example.lean",
+          "start": "(7, 1)",
+          "end": "(10, 41)",
+          "url": "https://github.com/durant42040/lean4-example",
+          "commit": "3e23ab0bfdcfdbd5b11ab53c2cd8b5d16492e9c2",
+          "traced_tactics": [
+            {
+              "tactic": "intro a b c",
+              "annotated_tactic": [
+                "intro a b c",
+                []
+              ],
+              "state_before": "⊢ ∀ (a b c : Nat), a * b * c = a * (b * c)",
+              "state_after": "a b c : Nat\n⊢ a * b * c = a * (b * c)"
+            },
+            {
+              "tactic": "simp [Nat.mul_comm]",
+              "annotated_tactic": [
+                "simp [<a>Nat.mul_comm</a>]",
+                [
+                  {
+                    "full_name": "Nat.mul_comm",
+                    "def_path": ".lake/packages/lean4/src/lean/Init/Data/Nat/Basic.lean",
+                    "def_pos": "(215, 19)",
+                    "def_end_pos": "(215, 27)"
+                  }
+                ]
+              ],
+              "state_before": "a b c : Nat\n⊢ a * b * c = a * (b * c)",
+              "state_after": "a b c : Nat\n⊢ c * (a * b) = a * (b * c)"
+            },
+            {
+              "tactic": "simp [Nat.mul_comm, Nat.mul_left_comm]",
+              "annotated_tactic": [
+                "simp [<a>Nat.mul_comm</a>, <a>Nat.mul_left_comm</a>]",
+                [
+                  {
+                    "full_name": "Nat.mul_comm",
+                    "def_path": ".lake/packages/lean4/src/lean/Init/Data/Nat/Basic.lean",
+                    "def_pos": "(215, 19)",
+                    "def_end_pos": "(215, 27)"
+                  },
+                  {
+                    "full_name": "Nat.mul_left_comm",
+                    "def_path": ".lake/packages/lean4/src/lean/Init/Data/Nat/Basic.lean",
+                    "def_pos": "(248, 19)",
+                    "def_end_pos": "(248, 32)"
+                  }
+                ]
+              ],
+              "state_before": "a b c : Nat\n⊢ c * (a * b) = a * (b * c)",
+              "state_after": "no goals"
+            }
+          ],
+          "difficulty_rating": 20.085536923187668
+        },
+        {
+          "full_name": "my_and_comm_2",
+          "theorem_statement": "theorem my_and_comm_2 : ∀ {p q : Prop}, And p q → And q p :=",
+          "file_path": "Lean4Example.lean",
+          "start": "(44, 1)",
+          "end": "(47, 17)",
+          "url": "https://github.com/durant42040/lean4-example",
+          "commit": "3e23ab0bfdcfdbd5b11ab53c2cd8b5d16492e9c2",
+          "traced_tactics": [
+            {
+              "tactic": "simp",
+              "annotated_tactic": [
+                "simp",
+                []
+              ],
+              "state_before": "⊢ ∀ {p q : Prop}, p ∧ q → q ∧ p",
+              "state_after": "⊢ ∀ {p q : Prop}, p → q → q ∧ p"
+            },
+            {
+              "tactic": "intro p q hp hq",
+              "annotated_tactic": [
+                "intro p q hp hq",
+                []
+              ],
+              "state_before": "⊢ ∀ {p q : Prop}, p → q → q ∧ p",
+              "state_after": "p q : Prop\nhp : p\nhq : q\n⊢ q ∧ p"
+            },
+            {
+              "tactic": "exact ⟨hq, hp⟩",
+              "annotated_tactic": [
+                "exact ⟨hq, hp⟩",
+                []
+              ],
+              "state_before": "p q : Prop\nhp : p\nhq : q\n⊢ q ∧ p",
+              "state_after": "no goals"
+            }
+          ],
+          "difficulty_rating": 20.085536923187668
+        },
+        {
+          "full_name": "mul_assoc_my_3",
+          "theorem_statement": "theorem mul_assoc_my_3 : ∀ a b c : Nat, (a * b) * c = a * (b * c) :=",
+          "file_path": "Lean4Example.lean",
+          "start": "(55, 1)",
+          "end": "(58, 41)",
+          "url": "https://github.com/durant42040/lean4-example",
+          "commit": "3e23ab0bfdcfdbd5b11ab53c2cd8b5d16492e9c2",
+          "traced_tactics": [
+            {
+              "tactic": "intro a b c",
+              "annotated_tactic": [
+                "intro a b c",
+                []
+              ],
+              "state_before": "⊢ ∀ (a b c : Nat), a * b * c = a * (b * c)",
+              "state_after": "a b c : Nat\n⊢ a * b * c = a * (b * c)"
+            },
+            {
+              "tactic": "simp [Nat.mul_comm]",
+              "annotated_tactic": [
+                "simp [<a>Nat.mul_comm</a>]",
+                [
+                  {
+                    "full_name": "Nat.mul_comm",
+                    "def_path": ".lake/packages/lean4/src/lean/Init/Data/Nat/Basic.lean",
+                    "def_pos": "(215, 19)",
+                    "def_end_pos": "(215, 27)"
+                  }
+                ]
+              ],
+              "state_before": "a b c : Nat\n⊢ a * b * c = a * (b * c)",
+              "state_after": "a b c : Nat\n⊢ c * (a * b) = a * (b * c)"
+            },
+            {
+              "tactic": "simp [Nat.mul_comm, Nat.mul_left_comm]",
+              "annotated_tactic": [
+                "simp [<a>Nat.mul_comm</a>, <a>Nat.mul_left_comm</a>]",
+                [
+                  {
+                    "full_name": "Nat.mul_comm",
+                    "def_path": ".lake/packages/lean4/src/lean/Init/Data/Nat/Basic.lean",
+                    "def_pos": "(215, 19)",
+                    "def_end_pos": "(215, 27)"
+                  },
+                  {
+                    "full_name": "Nat.mul_left_comm",
+                    "def_path": ".lake/packages/lean4/src/lean/Init/Data/Nat/Basic.lean",
+                    "def_pos": "(248, 19)",
+                    "def_end_pos": "(248, 32)"
+                  }
+                ]
+              ],
+              "state_before": "a b c : Nat\n⊢ c * (a * b) = a * (b * c)",
+              "state_after": "no goals"
+            }
+          ],
+          "difficulty_rating": 20.085536923187668
+        },
+        {
+          "full_name": "my_add_comm_2",
+          "theorem_statement": "theorem my_add_comm_2 (n m : Nat) : n + m = m + n :=",
+          "file_path": "Lean4Example.lean",
+          "start": "(33, 1)",
+          "end": "(34, 20)",
+          "url": "https://github.com/durant42040/lean4-example",
+          "commit": "3e23ab0bfdcfdbd5b11ab53c2cd8b5d16492e9c2",
+          "traced_tactics": [
+            {
+              "tactic": "rw [Nat.add_comm]",
+              "annotated_tactic": [
+                "rw [<a>Nat.add_comm</a>]",
+                [
+                  {
+                    "full_name": "Nat.add_comm",
+                    "def_path": ".lake/packages/lean4/src/lean/Init/Data/Nat/Basic.lean",
+                    "def_pos": "(158, 19)",
+                    "def_end_pos": "(158, 27)"
+                  }
+                ]
+              ],
+              "state_before": "n m : Nat\n⊢ n + m = m + n",
+              "state_after": "no goals"
+            }
+          ],
+          "difficulty_rating": 2.718281828459045
+        },
+        {
+          "full_name": "my_and_comm_1",
+          "theorem_statement": "theorem my_and_comm_1 : ∀ {p q : Prop}, And p q → And q p :=",
+          "file_path": "Lean4Example.lean",
+          "start": "(28, 1)",
+          "end": "(31, 17)",
+          "url": "https://github.com/durant42040/lean4-example",
+          "commit": "3e23ab0bfdcfdbd5b11ab53c2cd8b5d16492e9c2",
+          "traced_tactics": [
+            {
+              "tactic": "simp",
+              "annotated_tactic": [
+                "simp",
+                []
+              ],
+              "state_before": "⊢ ∀ {p q : Prop}, p ∧ q → q ∧ p",
+              "state_after": "⊢ ∀ {p q : Prop}, p → q → q ∧ p"
+            },
+            {
+              "tactic": "intro p q hp hq",
+              "annotated_tactic": [
+                "intro p q hp hq",
+                []
+              ],
+              "state_before": "⊢ ∀ {p q : Prop}, p → q → q ∧ p",
+              "state_after": "p q : Prop\nhp : p\nhq : q\n⊢ q ∧ p"
+            },
+            {
+              "tactic": "exact ⟨hq, hp⟩",
+              "annotated_tactic": [
+                "exact ⟨hq, hp⟩",
+                []
+              ],
+              "state_before": "p q : Prop\nhp : p\nhq : q\n⊢ q ∧ p",
+              "state_after": "no goals"
+            }
+          ],
+          "difficulty_rating": 20.085536923187668
+        },
+        {
+          "full_name": "my_and_comm",
+          "theorem_statement": "theorem my_and_comm : ∀ {p q : Prop}, And p q → And q p :=",
+          "file_path": "Lean4Example.lean",
+          "start": "(12, 1)",
+          "end": "(15, 17)",
+          "url": "https://github.com/durant42040/lean4-example",
+          "commit": "3e23ab0bfdcfdbd5b11ab53c2cd8b5d16492e9c2",
+          "traced_tactics": [
+            {
+              "tactic": "simp",
+              "annotated_tactic": [
+                "simp",
+                []
+              ],
+              "state_before": "⊢ ∀ {p q : Prop}, p ∧ q → q ∧ p",
+              "state_after": "⊢ ∀ {p q : Prop}, p → q → q ∧ p"
+            },
+            {
+              "tactic": "intro p q hp hq",
+              "annotated_tactic": [
+                "intro p q hp hq",
+                []
+              ],
+              "state_before": "⊢ ∀ {p q : Prop}, p → q → q ∧ p",
+              "state_after": "p q : Prop\nhp : p\nhq : q\n⊢ q ∧ p"
+            },
+            {
+              "tactic": "exact ⟨hq, hp⟩",
+              "annotated_tactic": [
+                "exact ⟨hq, hp⟩",
+                []
+              ],
+              "state_before": "p q : Prop\nhp : p\nhq : q\n⊢ q ∧ p",
+              "state_after": "no goals"
+            }
+          ],
+          "difficulty_rating": 20.085536923187668
+        },
+        {
+          "full_name": "succ_add_succ_1",
+          "theorem_statement": "theorem succ_add_succ_1 (a b : Nat) : Nat.succ a + Nat.succ b = Nat.succ (Nat.succ (a + b)) :=",
+          "file_path": "Lean4Example.lean",
+          "start": "(20, 1)",
+          "end": "(21, 34)",
+          "url": "https://github.com/durant42040/lean4-example",
+          "commit": "3e23ab0bfdcfdbd5b11ab53c2cd8b5d16492e9c2",
+          "traced_tactics": [
+            {
+              "tactic": "rw [Nat.succ_add, Nat.add_succ]",
+              "annotated_tactic": [
+                "rw [<a>Nat.succ_add</a>, <a>Nat.add_succ</a>]",
+                [
+                  {
+                    "full_name": "Nat.succ_add",
+                    "def_path": ".lake/packages/lean4/src/lean/Init/Data/Nat/Basic.lean",
+                    "def_pos": "(142, 9)",
+                    "def_end_pos": "(142, 17)"
+                  },
+                  {
+                    "full_name": "Nat.add_succ",
+                    "def_path": ".lake/packages/lean4/src/lean/Init/Data/Nat/Basic.lean",
+                    "def_pos": "(146, 9)",
+                    "def_end_pos": "(146, 17)"
+                  }
+                ]
+              ],
+              "state_before": "a b : Nat\n⊢ a.succ + b.succ = (a + b).succ.succ",
+              "state_after": "no goals"
+            }
+          ],
+          "difficulty_rating": 2.718281828459045
+        }
+      ],
+      "sorry_theorems_proved": [],
+      "sorry_theorems_unproved": [
+        {
+          "full_name": "succ_add_succ_3",
+          "theorem_statement": "theorem succ_add_succ_3 (a b : Nat) : Nat.succ a + Nat.succ b = Nat.succ (Nat.succ (a + b)) :=",
+          "file_path": "Lean4Example.lean",
+          "start": "(52, 1)",
+          "end": "(53, 8)",
+          "url": "https://github.com/durant42040/lean4-example",
+          "commit": "3e23ab0bfdcfdbd5b11ab53c2cd8b5d16492e9c2",
+          "traced_tactics": [
+            {
+              "tactic": "sorry",
+              "annotated_tactic": [
+                "sorry",
+                []
+              ],
+              "state_before": "a b : Nat\n⊢ a.succ + b.succ = (a + b).succ.succ",
+              "state_after": "no goals"
+            }
+          ],
+          "difficulty_rating": Infinity
+        },
+        {
+          "full_name": "succ_add_succ_2",
+          "theorem_statement": "theorem succ_add_succ_2 (a b : Nat) : Nat.succ a + Nat.succ b = Nat.succ (Nat.succ (a + b)) :=",
+          "file_path": "Lean4Example.lean",
+          "start": "(36, 1)",
+          "end": "(37, 8)",
+          "url": "https://github.com/durant42040/lean4-example",
+          "commit": "3e23ab0bfdcfdbd5b11ab53c2cd8b5d16492e9c2",
+          "traced_tactics": [
+            {
+              "tactic": "sorry",
+              "annotated_tactic": [
+                "sorry",
+                []
+              ],
+              "state_before": "a b : Nat\n⊢ a.succ + b.succ = (a + b).succ.succ",
+              "state_after": "no goals"
+            }
+          ],
+          "difficulty_rating": Infinity
+        },
+        {
+          "full_name": "succ_add_succ_4",
+          "theorem_statement": "theorem succ_add_succ_4 (a b : Nat) : Nat.succ a + Nat.succ b = Nat.succ (Nat.succ (a + b)) :=",
+          "file_path": "Lean4Example.lean",
+          "start": "(68, 1)",
+          "end": "(69, 8)",
+          "url": "https://github.com/durant42040/lean4-example",
+          "commit": "3e23ab0bfdcfdbd5b11ab53c2cd8b5d16492e9c2",
+          "traced_tactics": [
+            {
+              "tactic": "sorry",
+              "annotated_tactic": [
+                "sorry",
+                []
+              ],
+              "state_before": "a b : Nat\n⊢ a.succ + b.succ = (a + b).succ.succ",
+              "state_after": "no goals"
+            }
+          ],
+          "difficulty_rating": Infinity
+        }
+      ],
+      "premise_files": [],
+      "files_traced": [
+        "Lean4Example.lean"
+      ],
+      "pr_url": null
+    }
+  ]
+}
