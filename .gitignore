@@ -1,4 +1,10 @@
 vendor/
+!vendor/benchsets/
+!vendor/benchsets/mathlib4/
+!vendor/benchsets/mathlib4/README.md
+!vendor/benchsets/mathlib4/.gitignore
+!vendor/benchsets/mathlib4/val_sample.json
 build/
 .venv/
 lean_cache/
+__pycache__/
