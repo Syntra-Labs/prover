@@ -41,3 +41,48 @@ def gfn_evaluator():
     import torch
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     return AuthenticGFNEvaluator(str(ckpt_path), device=device)
+
+@pytest.fixture(scope="session")
+def authentic_e8_snap():
+    """
+    Calls authentic Conway-Sloane E8 lattice snapping directly from
+    uor_r4_integer::codec::e8_round via the compiled r4-inspect binary.
+    Zero Python re-implementations permitted.
+    """
+    import subprocess
+    import json
+    
+    r4_inspect_paths = [
+        ROOT_DIR / "vendor/uor-r4/target/debug/r4-inspect",
+        ROOT_DIR / "vendor/uor-r4/target/release/r4-inspect",
+        Path("/content/prover/vendor/uor-r4/target/debug/r4-inspect"),
+        Path("/content/prover/vendor/uor-r4/target/release/r4-inspect"),
+    ]
+    r4_bin = next((p for p in r4_inspect_paths if p.exists() and os.access(p, os.X_OK)), None)
+    if r4_bin is None:
+        pytest.skip("r4-inspect binary not found or not executable. Compile vendor/uor-r4 first.")
+
+    def snap_fn(blocks_8d, scale=0.5):
+        """
+        blocks_8d: list of 8D lists/arrays or single 8D list/array
+        returns: list of snapped 8D tuples (or single tuple)
+        """
+        is_single = False
+        if isinstance(blocks_8d, (list, tuple)) and len(blocks_8d) == 8 and not isinstance(blocks_8d[0], (list, tuple)):
+            blocks_8d = [blocks_8d]
+            is_single = True
+
+        blocks_json = json.dumps([list(float(x) for x in b) for b in blocks_8d])
+        proc = subprocess.run(
+            [str(r4_bin), "snap", "--scale", str(scale)],
+            input=blocks_json,
+            text=True,
+            capture_output=True,
+            check=True
+        )
+        res = json.loads(proc.stdout)
+        snapped = [tuple(b) for b in res["snapped"]]
+        return snapped[0] if is_single else snapped
+
+    return snap_fn
+

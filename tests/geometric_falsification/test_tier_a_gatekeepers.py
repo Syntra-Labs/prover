@@ -17,36 +17,6 @@ from scipy import stats
 from collections import Counter
 
 
-def d8_round(y: np.ndarray) -> np.ndarray:
-    """D8 root lattice rounding (Conway & Sloane, 1982)."""
-    f = np.round(y)
-    if int(np.sum(f)) % 2 != 0:
-        err = np.abs(y - f)
-        worst = np.argmax(err)
-        f[worst] += 1.0 if y[worst] > f[worst] else -1.0
-    return f
-
-
-def e8_snap_normalized(y: np.ndarray, scale: float = 0.5) -> np.ndarray:
-    """
-    Casey Allard's authentic E8 snapping function with RMS normalization.
-    Direct port of e8_snap from uor-r4-graph-certify/tests/e8_membership_ab.rs (lines 42, 95-113).
-    Normalizes 8D block to unit RMS, applies scale multiplier, then snaps to nearest E8 lattice root.
-    """
-    rms = np.sqrt(np.mean(y ** 2))
-    if rms > 1e-7:
-        y_scaled = (y / rms) * scale
-    else:
-        y_scaled = y
-
-    a = d8_round(y_scaled)
-    b0 = d8_round(y_scaled - 0.5)
-    b = b0 + 0.5
-    da = np.sum((y_scaled - a) ** 2)
-    db = np.sum((y_scaled - b) ** 2)
-    return a if da <= db else b
-
-
 # TODO(gate-ood | tier:A | blocks:[unify-bundle]): Compare GFN trajectory norms on Mathlib 4 vs scrambled character noise.
 # Description: Test whether DepthMuun Shakespeare checkpoint distinguishes formal Lean 4 syntax from random noise.
 # Criterion: assert: ks_pvalue < 0.01
@@ -160,11 +130,12 @@ def test_torus_permutation_order(mathlib_sample, gfn_evaluator):
 # TODO(gate-e8 | tier:A | blocks:[unify-bundle]): Test Conway-Sloane E8 Voronoi lattice snapping dispersion.
 # Description: Test whether 50 Mathlib tactic proof states collapse into the origin E8 cell or disperse across cells.
 # Criterion: assert: shannon_entropy >= 3.0 and max_cell_fraction <= 0.25
-def test_voronoi_dispersion(mathlib_sample, gfn_evaluator):
+def test_voronoi_dispersion(mathlib_sample, gfn_evaluator, authentic_e8_snap):
     """
     Failure Mode 2: E8 Lattice Mode Collapse.
     Applies Casey Allard's authentic RMS scaling (0.5 * v / rms(v)) before 
     Conway-Sloane snapping to eliminate arbitrary scale mismatch.
+    Zero Python re-implementations: executes authentic uor_r4_integer::codec::e8_round.
     """
     proof_states = []
     for thm in mathlib_sample[:50]:
@@ -182,14 +153,10 @@ def test_voronoi_dispersion(mathlib_sample, gfn_evaluator):
         res = gfn_evaluator.forward_state(state)
         v = np.array(res["raw_res"]["final_state"].squeeze(0).cpu(), dtype=np.float64) # 64-dim
         
-        # Snap 8 blocks of 8D vectors to E8 lattice points with Casey Allard 0.5rms scaling
-        snapped_blocks = []
-        for b in range(8):
-            blk = v[8 * b : 8 * (b + 1)]
-            snapped = e8_snap_normalized(blk, scale=0.5)
-            snapped_blocks.append(tuple(snapped.tolist()))
-            
-        cell_key = tuple(snapped_blocks)
+        # Authentic snapping of 8 blocks of 8D vectors via r4-inspect / uor_r4_integer
+        blocks = [v[8 * b : 8 * (b + 1)].tolist() for b in range(8)]
+        snapped_blocks = authentic_e8_snap(blocks, scale=0.5)
+        cell_key = tuple(tuple(b) for b in snapped_blocks)
         cells.append(cell_key)
 
     # Compute cell distribution statistics
