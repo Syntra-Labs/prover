@@ -186,7 +186,6 @@ def check_staged_resolutions() -> List[str]:
                 deleted_todos.append(m.group(1))
                 
     if deleted_todos:
-        # Verify staged files include a log artifact or test resolution
         try:
             staged_files = subprocess.check_output(
                 ["git", "diff", "--cached", "--name-only"],
@@ -196,15 +195,39 @@ def check_staged_resolutions() -> List[str]:
         except Exception:
             staged_files = []
             
-        has_log = any(f.startswith("logs/") for f in staged_files)
-        has_tests = any(f.startswith("tests/") for f in staged_files)
+        staged_log_files = [ROOT / f for f in staged_files if f.startswith("logs/")]
+        staged_test_files = [ROOT / f for f in staged_files if f.startswith("tests/")]
         
         for tid in deleted_todos:
-            # If deleted, must have accompanied test or log modification
-            if not has_log and not has_tests:
+            # Check 1: Must have at least one staged log or test file
+            if not staged_log_files and not staged_test_files:
                 errors.append(
-                    f"Safety Violation: Task '{tid}' is being removed, but no test or log artifact in logs/ "
+                    f"Anti-Erasure Violation: Task '{tid}' is being removed, but no test or log artifact in logs/ "
                     f"is staged to prove resolution. Revert the deletion or stage the proof log."
+                )
+                continue
+                
+            # Check 2: Verify that at least one staged log or test file explicitly references the task ID
+            # and is not an empty dummy file
+            task_referenced = False
+            for file_path in staged_log_files + staged_test_files:
+                if not file_path.exists():
+                    continue
+                # Verify non-empty
+                if file_path.stat().st_size == 0:
+                    continue
+                try:
+                    content = file_path.read_text(encoding="utf-8", errors="ignore")
+                    if tid in content:
+                        task_referenced = True
+                        break
+                except Exception:
+                    continue
+                    
+            if not task_referenced:
+                errors.append(
+                    f"Anti-Erasure Violation: Task '{tid}' is being removed, but none of the staged log/test files "
+                    f"mention task ID '{tid}'. The resolution log must explicitly reference '{tid}' and contain non-empty data."
                 )
                 
     return errors
