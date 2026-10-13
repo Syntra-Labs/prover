@@ -19,8 +19,12 @@ from gfn import isn
 class AuthenticGFNEvaluator:
     def __init__(self, checkpoint_dir: Optional[str] = None, device: str = "cpu"):
         self.device = torch.device(device)
-        if checkpoint_dir is None:
-            # Fallback to local huggingface cache or standard location
+            # FIXME(gfn-snapshot-fallback | tier:B): Verify explicit snapshot path is provided in production runners.
+            # Description: Avoid silent fallback to unpinned local huggingface cache.
+            # Criterion: review: "Production evaluator raises FileNotFoundError if checkpoint path is missing or invalid"
+            # FIXME(gfn-math-domain | tier:A | blocks:[unify-bundle]): DepthMuun Shakespeare checkpoint was trained on literature, not Lean 4 code.
+            # Description: Check whether character embedding modulo mapping degrades trajectory representations on Lean syntax.
+            # Criterion: assert: ks_test(mathlib_norms, noise_norms).pvalue < 0.01
             self.ckpt_dir = Path.home() / ".cache/huggingface/hub/models--DepthMuun--gfn-isn-shakespeare-char/snapshots"
             if self.ckpt_dir.exists():
                 snapshots = list(self.ckpt_dir.iterdir())

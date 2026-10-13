@@ -1,13 +1,14 @@
-"""
-Benchmark Runner for Authentic Geometric Models (R4 & GFN) on Mathlib 4.
-Runs strictly against authentic model implementations:
-- R4: Casey Allard's StackModel (via r4-inspect)
-- GFN: DepthMuun's ISN (via gfn.isn)
-Captures:
-- Real logits and top-k predictions
-- Genuine trajectory norms and hidden state magnitudes
-- Discrete tactic mapping and ground truth comparisons
-"""
+# TODO(policy-r4 | tier:B | depends_on:[stab-alpha, stab-jitter] | blocks:[macro-decider]):
+# Description: Train linear/MLP classification head over R4 1024-dim hidden states mapping to 50 discrete tactics.
+# Criterion: assert: top1_accuracy >= 0.30 and top5_accuracy >= 0.65 on Mathlib 4 validation holdout
+
+# TODO(unify-bundle | tier:C | depends_on:[gate-ood, gate-perm, gate-e8, stab-energy]):
+# Description: Connect GFN continuous symplectic trajectory to R4 S3/Hopf and E8 lattice discrete quantization.
+# Criterion: review: "End-to-end forward pass maps Lean goal to discrete tactic via E8 Voronoi snapping on Cloud A100"
+
+# TODO(macro-decider | tier:C | depends_on:[policy-r4, search-action, search-dead-tactic]):
+# Description: Implement Tier 1 Macro-Action Decider gating terminating procedures vs forward lemma invention.
+# Criterion: review: "Decider routes proof search between Tier 2A direct tactics and Tier 2B forward invention with kernel feedback"
 
 import sys
 import json

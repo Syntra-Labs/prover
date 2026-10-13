@@ -4,10 +4,14 @@
 LGCC_TEMP="/home/yassine/code/prover/build/lgccTemp"
 touch "$LGCC_TEMP"
 # append to it the source file
-# FIXME: don't hardcord the source code
+# FIXME(legacy-test-hardcoded | tier:C): Parameterize source file input in legacy test script.
+# Description: Replace hardcoded process.cpp path with argument variable.
+# Criterion: review: "scripts/test.sh accepts target source file as $1"
 cat "/home/yassine/code/prover/src/process.cpp" > "$LGCC_TEMP"
 
-# FIXME: for now we're assuming that the files will be cpp, but we should add support for other languages in the future
+# FIXME(legacy-test-multilang | tier:C): Add multi-language compilation support.
+# Description: Expand beyond cpp cmake build to support Lean and Rust sources.
+# Criterion: review: "scripts/test.sh branches on file extension to call appropriate compiler"
 # compile the file with cmake and 
 # append the output to the temporary file
 cd /home/yassine/code/prover/build/
