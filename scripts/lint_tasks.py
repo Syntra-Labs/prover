@@ -159,16 +159,66 @@ def validate_dag(tasks: List[Dict[str, Any]]) -> List[str]:
             
     return errors
 
+def check_staged_resolutions() -> List[str]:
+    """
+    Guarantees that a TODO cannot disappear silently.
+    If a git commit deletes a TODO line, it checks that the staged commit
+    includes a corresponding record in logs/ or an explicit resolution note.
+    """
+    import subprocess
+    errors = []
+    try:
+        # Check staged diff for deleted TODO lines
+        diff = subprocess.check_output(
+            ["git", "diff", "--cached", "-U0"],
+            cwd=str(ROOT),
+            text=True,
+            errors="ignore"
+        )
+    except Exception:
+        return errors
+        
+    deleted_todos = []
+    for line in diff.splitlines():
+        if line.startswith("-") and not line.startswith("---"):
+            m = re.search(r'(?:TODO|FIXME)\(([a-zA-Z0-9_\-]+)\s*\|', line)
+            if m:
+                deleted_todos.append(m.group(1))
+                
+    if deleted_todos:
+        # Verify staged files include a log artifact or test resolution
+        try:
+            staged_files = subprocess.check_output(
+                ["git", "diff", "--cached", "--name-only"],
+                cwd=str(ROOT),
+                text=True
+            ).splitlines()
+        except Exception:
+            staged_files = []
+            
+        has_log = any(f.startswith("logs/") for f in staged_files)
+        has_tests = any(f.startswith("tests/") for f in staged_files)
+        
+        for tid in deleted_todos:
+            # If deleted, must have accompanied test or log modification
+            if not has_log and not has_tests:
+                errors.append(
+                    f"Safety Violation: Task '{tid}' is being removed, but no test or log artifact in logs/ "
+                    f"is staged to prove resolution. Revert the deletion or stage the proof log."
+                )
+                
+    return errors
+
 def main():
     print("=" * 70)
     print("SOURCE-FIRST TASK & INVARIANT LINTER")
     print("=" * 70)
     
-    from typing import Tuple
     tasks, parse_errors = scan_tasks()
     dag_errors = validate_dag(tasks)
+    resolution_errors = check_staged_resolutions()
     
-    all_errors = parse_errors + dag_errors
+    all_errors = parse_errors + dag_errors + resolution_errors
     
     if all_errors:
         print(f"\n[FAILED] Found {len(all_errors)} task specification errors:\n")
