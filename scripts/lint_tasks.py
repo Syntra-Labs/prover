@@ -8,7 +8,9 @@ Enforces the structured in-line TODO / FIXME contract across the codebase.
 Schema:
     `# TODO(<id> | tier:<A|B|C> [| blocks:[<id>,...]] [| depends_on:[<id>,...]]):`
     `# Description: <text>`
-    `# Criterion: <assert: <expr> | review: "<text>">`
+# TODO(extract-task-system | tier:C): Extract Source-First task linter into standalone repository once battle-tested.
+# Description: Package lint_tasks.py into an independent, reusable zero-dependency tool for other projects.
+# Criterion: review: "Separate repository created with pip/pipx installation or git-submodule vendoring instructions"
 """
 
 import sys
