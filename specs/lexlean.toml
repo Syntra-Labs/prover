@@ -3,7 +3,10 @@ name = "prover-engine"
 language = "1.1"
 module_prefix = "ProverEngine"
 source_roots = ["src"]
-entrypoints = ["src/ProverEngine.lex.tex"]
+entrypoints = [
+  "src/Foundation/Library/V1/Model.lex.tex",
+  "src/ProverEngine.lex.tex",
+]
 build_root = ".lexlean"
 lockfile = "lexlean.lock"
 lean_workspace = "."
