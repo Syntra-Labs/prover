@@ -89,8 +89,12 @@ The formal semantic module defines the exact machine-checked data structures and
 
 | Type / Constructor | Category | Semantics |
 | :--- | :--- | :--- |
-| `Quaternion4` | Structure | Four-coordinate $(w, x, y, z)$ unit quaternion in $S^3$. |
+| `Quaternion4` | Structure | Four-coordinate $(w, x, y, z)$ quaternion in $\mathbb{R}^4$. |
 | `LatticeVector8` | Structure | Eight-coordinate $(x_0, \dots, x_7)$ vector in $\mathbb{R}^8$. |
+| `quaternionNormSq` | Definition | Squared Euclidean norm $\|q\|^2 = w^2 + x^2 + y^2 + z^2$ via checked arithmetic. |
+| `isUnitQuaternion` | Definition | Boolean predicate verifying closure on the 3-sphere $\|q\|^2 = 1$. |
+| `latticeCoordSum` | Definition | Checked 8-coordinate summation $\sum_{i=0}^7 x_i$. |
+| `latticeParityValid` | Definition | Boolean predicate verifying $E_8$ Gosset root lattice parity closure ($\sum x_i \equiv 0 \pmod 2$). |
 | `TacticKind` | Inductive | Canonical Lean 4 tactic vocabulary (`Intro`, `Exact`, `Apply`, `Simp`, etc.). |
 | `KernelStatus` | Inductive | Lean 4 kernel evaluation outcome (`GoalsClosed`, `SubgoalsOpen`, `KernelError`, `KernelTimeout`). |
 | `SearchStatus` | Inductive | Application search state (`Searching`, `SuccessProven`, `BudgetExhausted`, `SearchFailed`). |
@@ -98,19 +102,25 @@ The formal semantic module defines the exact machine-checked data structures and
 | `SearchLimits` | Structure | Exploration bounds: `(maxSteps: int64, maxDepth: int64)`. |
 | `nextSearchStatus` | Definition | Deterministic state transition mapping `(current, feedback) -> next_status`. |
 | `isTerminalStatus` | Definition | Boolean predicate identifying terminal search states (`SuccessProven`, `BudgetExhausted`, `SearchFailed`). |
+| `acceptance` | Definition | Root platform acceptance combining terminal search status, $S^3$ unit norm closure, and $E_8$ parity closure. |
 
 ---
 
 ## 4. Machine-Checked Theorems (Lean 4 Kernel Verified)
 
-The formal specification proves six fundamental theorems via reflexivity (`rfl`), machine-checked by `lexlean check`, `lexlean build`, and the official Lean 4 kernel:
+The formal specification proves eleven fundamental theorems via reflexivity (`rfl`), machine-checked by `lexlean check`, `lexlean verify`, and the Lean 4 kernel:
 
 1. **`calculate_coord_correct`**: Verified reflexivity of checked coordinate arithmetic operations.
 2. **`quaternion_identity_w`**: Verified that the $w$ scalar component of the canonical identity rotor $\mathbf{1}_{S^3}$ equals $1$.
-3. **`lattice_origin_x0`**: Verified that the $x_0$ coordinate of the $E_8$ lattice origin $\mathbf{0}_{\mathbb{R}^8}$ equals $0$.
-4. **`initial_search_state_goals`**: Verified that initializing the search state starts with exactly 1 active goal.
-5. **`closed_goals_yields_success`**: Verified that receiving `KernelStatus.GoalsClosed` from LeanDojo when `Searching` unconditionally transitions to `SearchStatus.SuccessProven`.
-6. **`terminal_success_is_terminal`**: Verified that `SearchStatus.SuccessProven` evaluates to `true` under `isTerminalStatus`.
+3. **`quaternion_identity_norm_sq`**: Verified that $\|\mathbf{1}_{S^3}\|^2 = 1^2 + 0^2 + 0^2 + 0^2 = 1$ under checked arithmetic.
+4. **`quaternion_identity_is_unit`**: Verified unit rotor predicate `isUnitQuaternion(quaternionIdentity) = true`, enforcing $S^3$ geometric closure.
+5. **`lattice_origin_x0`**: Verified that the $x_0$ coordinate of the $E_8$ lattice origin $\mathbf{0}_{\mathbb{R}^8}$ equals $0$.
+6. **`lattice_origin_coord_sum`**: Verified that coordinate sum $\sum_{i=0}^7 x_i$ of $\mathbf{0}_{\mathbb{R}^8}$ equals $0$.
+7. **`lattice_origin_even_parity`**: Verified that the lattice origin satisfies the $E_8$ Gosset root lattice parity closure condition $\sum x_i \equiv 0 \pmod 2$.
+8. **`initial_search_state_goals`**: Verified that initializing the search state starts with exactly 1 active goal.
+9. **`closed_goals_yields_success`**: Verified that receiving `KernelStatus.GoalsClosed` from LeanDojo when `Searching` unconditionally transitions to `SearchStatus.SuccessProven`.
+10. **`terminal_success_is_terminal`**: Verified that `SearchStatus.SuccessProven` evaluates to `true` under `isTerminalStatus`.
+11. **`acceptance_is_true`**: Verified that the composite library acceptance predicate evaluates to `true`.
 
 ---
 
@@ -119,4 +129,6 @@ The formal specification proves six fundamental theorems via reflexivity (`rfl`)
 Every commit to the repository must satisfy:
 1. `python3 scripts/lint_tasks.py`: Complete acyclicity of the 12-task DAG and anti-erasure log tracking.
 2. `./vendor/prismpm/vendor/lexlean/target/debug/lexlean --project specs/lexlean.toml check`: Complete semantic validation and canonical JSON link check of `specs/src/ProverEngine.lex.tex`.
-3. Pre-push gate: Rejection of direct pushes to `leanDojo` or `prover`, requiring audited pull requests.
+3. `./vendor/prismpm/vendor/lexlean/target/debug/lexlean --project specs/lexlean.toml verify`: Complete Lean 4 kernel verification and attestation under pinned toolchain `leanprover/lean4:v4.32.1`.
+4. `./vendor/prismpm/target/debug/prismpm --project specs check`: Holographic native library conformance and acceptance root validation.
+5. Pre-push gate: Rejection of direct pushes to `leanDojo` or `prover`, requiring audited pull requests.
