@@ -7,8 +7,8 @@ Executed on Cloud A100 GPU against live authentic models.
 
 import pytest
 
-# TODO(search-action | tier:C | depends_on:[gate-ood, gate-perm] | blocks:[macro-decider]):
-# Description: Verify total Lagrangian action is finite and stationary on complete Mathlib 4 proof paths.
+# TODO(search-action | tier:C | depends_on:[unify-bundle] | blocks:[macro-decider]):
+# Description: Verify total geometric action is finite and stationary on complete Mathlib 4 proof paths.
 # Criterion: assert: valid_action < divergent_action and not is_inf(valid_action)
 def test_path_action_boundedness():
     """Failure Mode 1: Action Non-Boundedness along Proof Trajectories."""
