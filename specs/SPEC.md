@@ -147,7 +147,9 @@ The formal specification proves nineteen machine-checked theorems verified by `l
 
 Every commit to the repository must satisfy:
 1. `python3 scripts/lint_tasks.py`: Complete acyclicity of the 12-task DAG and anti-erasure log tracking.
-2. `./vendor/prismpm/vendor/lexlean/target/debug/lexlean --project specs/lexlean.toml check`: Complete semantic validation and canonical JSON link check of `specs/src/ProverEngine.lex.tex`.
-3. `./vendor/prismpm/vendor/lexlean/target/debug/lexlean --project specs/lexlean.toml verify`: Complete Lean 4 kernel verification and attestation under pinned toolchain `leanprover/lean4:v4.32.1`.
-4. `./vendor/prismpm/target/debug/prismpm --project specs check`: Holographic native library conformance and acceptance root validation.
-5. Pre-push gate: Rejection of direct pushes to `leanDojo` or `prover`, requiring audited pull requests.
+2. `python3 scripts/lint_diff_size.py --staged`: Reviewability budget enforcement: max 300 modified lines per commit.
+3. `python3 scripts/lint_diff_size.py --compare-base origin/leanDojo`: Reviewability budget enforcement: max 500 modified lines per Pull Request.
+4. `./vendor/prismpm/vendor/lexlean/target/debug/lexlean --project specs/lexlean.toml check`: Complete semantic validation and canonical JSON link check of `specs/src/ProverEngine.lex.tex`.
+5. `./vendor/prismpm/vendor/lexlean/target/debug/lexlean --project specs/lexlean.toml verify`: Complete Lean 4 kernel verification and attestation under pinned toolchain `leanprover/lean4:v4.32.1`.
+6. `./vendor/prismpm/target/debug/prismpm --project specs check`: Holographic native library conformance and acceptance root validation.
+7. Pre-push gate: Rejection of direct pushes to `leanDojo` or `prover`, requiring audited pull requests.
