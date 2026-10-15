@@ -44,6 +44,13 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Checkout PrismPM SDK
+        uses: actions/checkout@v4
+        with:
+          repository: UOR-Foundation/PrismPM
+          ref: 09f8b916023cbb7db945b8e8267eebba25965f26
+          path: vendor/prismpm
+
       - name: Set up Rust Toolchain
         uses: dtolnay/rust-toolchain@stable
 
@@ -68,8 +75,8 @@ jobs:
 
       - name: Build LexLean & PrismPM Binaries
         run: |
-          cargo build --manifest-path vendor/prismpm/vendor/lexlean/Cargo.toml --bin lexlean
-          cargo build --manifest-path vendor/prismpm/Cargo.toml --bin prismpm
+          cargo build --manifest-path vendor/prismpm/vendor/lexlean/Cargo.toml --bin lexlean --ignore-rust-version
+          cargo build --manifest-path vendor/prismpm/Cargo.toml --bin prismpm --ignore-rust-version
 
       - name: Run LexLean Check
         run: ./vendor/prismpm/vendor/lexlean/target/debug/lexlean --project specs/lexlean.toml check
