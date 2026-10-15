@@ -235,15 +235,20 @@ def check_staged_resolutions() -> List[str]:
     return errors
 
 def main():
-    print("=" * 70)
-    print("SOURCE-FIRST TASK & INVARIANT LINTER")
-    print("=" * 70)
-    
     tasks, parse_errors = scan_tasks()
     dag_errors = validate_dag(tasks)
     resolution_errors = check_staged_resolutions()
     
     all_errors = parse_errors + dag_errors + resolution_errors
+    
+    if "--json" in sys.argv:
+        import json
+        print(json.dumps({"tasks": tasks, "errors": all_errors, "root": str(ROOT)}))
+        sys.exit(0 if not all_errors else 1)
+
+    print("=" * 70)
+    print("SOURCE-FIRST TASK & INVARIANT LINTER")
+    print("=" * 70)
     
     if all_errors:
         print(f"\n[FAILED] Found {len(all_errors)} task specification errors:\n")
