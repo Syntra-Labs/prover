@@ -2,8 +2,8 @@
 # Description: Train linear/MLP classification head over R4 1024-dim hidden states mapping to 50 discrete tactics.
 # Criterion: assert: top1_accuracy >= 0.30 and top5_accuracy >= 0.65 on Mathlib 4 validation holdout
 
-# TODO(unify-bundle | tier:C | depends_on:[gate-ood, gate-perm, gate-e8, stab-energy]):
-# Description: Connect GFN continuous symplectic trajectory to R4 S3/Hopf and E8 lattice discrete quantization.
+# TODO(unify-bundle | tier:C | depends_on:[gate-e8, gate-r4-token] | blocks:[search-action]):
+# Description: Connect R4 S3/Hopf and E8 lattice discrete quantization to Lean tactic emission.
 # Criterion: review: "End-to-end forward pass maps Lean goal to discrete tactic via E8 Voronoi snapping on Cloud A100"
 
 # TODO(macro-decider | tier:C | depends_on:[policy-r4, search-action, search-dead-tactic]):
@@ -19,15 +19,13 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 EVAL_DIR = ROOT_DIR / "src/eval"
 sys.path.insert(0, str(EVAL_DIR))
-sys.path.insert(0, str(ROOT_DIR / "vendor/gfn"))
 
-from gfn_eval import AuthenticGFNEvaluator
 from tactic_vocab import parse_tactic_step, TACTIC_MAP
 from tokenizers import Tokenizer
 
 def run_authentic_benchmark(num_steps: int = 20):
     print("=" * 70)
-    print("AUTHENTIC GEOMETRIC MODELS BENCHMARK ON MATHLIB 4")
+    print("AUTHENTIC R4 GEOMETRIC MODEL BENCHMARK ON MATHLIB 4")
     print("=" * 70)
 
     # 1. Load Mathlib 4 Validation Sample
@@ -62,12 +60,7 @@ def run_authentic_benchmark(num_steps: int = 20):
 
     print(f"[DATA] Prepared {len(steps)} authentic proof steps from Mathlib 4.\n")
 
-    # 2. Initialize Models
-    # GFN
-    gfn_ckpt = Path("/content/prover/checkpoints/DepthMuun/gfn-isn-shakespeare-char")
-    gfn_model = AuthenticGFNEvaluator(str(gfn_ckpt), device="cuda:0")
-
-    # R4
+    # 2. Initialize Authentic R4 Model
     r4_bin = ROOT_DIR / "vendor/uor-r4/target/release/r4-inspect"
     if not r4_bin.exists():
         r4_bin = Path("/content/prover/vendor/uor-r4/target/release/r4-inspect")
@@ -88,11 +81,7 @@ def run_authentic_benchmark(num_steps: int = 20):
         print(f"\n[Step {idx+1}/{len(steps)}] {thm}")
         print(f"  Target: '{tactic}' -> Discrete Tactic ID: {t_id} ({t_head})")
 
-        # --- A. Authentic GFN Pass ---
-        gfn_out = gfn_model.forward_state(state)
-        print(f"  [GFN] Tokens: {gfn_out['token_count']} | Trajectory Norm: {gfn_out['emitted_embeddings_norm']:.2f} | Endpoint Norm: {gfn_out['final_state_norm']:.2f}")
-
-        # --- B. Authentic R4 Pass ---
+        # --- Authentic R4 Forward Pass ---
         # Encode state with BPE tokenizer
         enc = r4_tokenizer.encode(state)
         ids_str = ",".join(str(i) for i in enc.ids[:128]) # pass up to context budget
@@ -115,10 +104,6 @@ def run_authentic_benchmark(num_steps: int = 20):
             "tactic": tactic,
             "tactic_id": t_id,
             "tactic_head": t_head,
-            "gfn": {
-                "trajectory_norm": gfn_out["emitted_embeddings_norm"],
-                "endpoint_norm": gfn_out["final_state_norm"]
-            },
             "r4": {
                 "hidden_norm": r4_data.get("final_hidden_norm"),
                 "top_5": r4_data.get("top_5", [])

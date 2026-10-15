@@ -2,17 +2,11 @@
 tests/geometric_falsification/test_tier_b_stability.py
 
 Tier B: Numerical Stability & Syntactic Invariance Tests.
+Focused 100% on UOR-R4 214M Geometric Model.
 Executed on Cloud A100 GPU against live authentic models.
 """
 
 import pytest
-
-# TODO(stab-energy | tier:B | blocks:[unify-bundle]): Test GFN symplectic integration over 2,000 continuous tokens.
-# Description: Track kinetic and potential energy to verify stability against energy blowup or freezing.
-# Criterion: assert: 1e-4 < energy_ratio < 1e4 and not has_nan
-def test_symplectic_energy_drift():
-    """Failure Mode 5: Numerical Energy Drift Under Symplectic Discretization."""
-    pytest.skip("Pending execution on Cloud A100 GPU (prover-a100)")
 
 
 # TODO(stab-alpha | tier:B | blocks:[policy-r4]): Test R4 hidden representation stability under bound variable renaming.

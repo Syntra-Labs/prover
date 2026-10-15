@@ -2,6 +2,7 @@
 tests/geometric_falsification/conftest.py
 
 Shared fixtures and data loaders for geometric falsification tests.
+Focused 100% on UOR-R4 214M geometric architecture.
 Runs on Cloud A100 GPU (prover-a100) or local environment.
 """
 
@@ -24,34 +25,8 @@ def mathlib_sample():
         return json.load(f)
 
 @pytest.fixture(scope="session")
-def gfn_evaluator():
-    """Initializes authentic DepthMuun GFN evaluator on GPU if available."""
-    import sys
-    sys.path.insert(0, str(ROOT_DIR / "src/eval"))
-    sys.path.insert(0, str(ROOT_DIR / "vendor/gfn"))
-    from gfn_eval import AuthenticGFNEvaluator
-    
-    ckpt_path = Path("/content/prover/checkpoints/DepthMuun/gfn-isn-shakespeare-char")
-    if not ckpt_path.exists():
-        ckpt_path = ROOT_DIR / "checkpoints/DepthMuun/gfn-isn-shakespeare-char"
-        
-    if not ckpt_path.exists():
-        pytest.skip(f"GFN checkpoint not found at {ckpt_path}")
-        
-    import torch
-    device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    return AuthenticGFNEvaluator(str(ckpt_path), device=device)
-
-@pytest.fixture(scope="session")
-def authentic_e8_snap():
-    """
-    Calls authentic Conway-Sloane E8 lattice snapping directly from
-    uor_r4_integer::codec::e8_round via the compiled r4-inspect binary.
-    Zero Python re-implementations permitted.
-    """
-    import subprocess
-    import json
-    
+def r4_inspect_bin():
+    """Locates the authentic compiled r4-inspect binary."""
     r4_inspect_paths = [
         ROOT_DIR / "vendor/uor-r4/target/debug/r4-inspect",
         ROOT_DIR / "vendor/uor-r4/target/release/r4-inspect",
@@ -61,6 +36,17 @@ def authentic_e8_snap():
     r4_bin = next((p for p in r4_inspect_paths if p.exists() and os.access(p, os.X_OK)), None)
     if r4_bin is None:
         pytest.skip("r4-inspect binary not found or not executable. Compile vendor/uor-r4 first.")
+    return r4_bin
+
+@pytest.fixture(scope="session")
+def authentic_e8_snap(r4_inspect_bin):
+    """
+    Calls authentic Conway-Sloane E8 lattice snapping directly from
+    uor_r4_integer::codec::e8_round via the compiled r4-inspect binary.
+    Zero Python re-implementations permitted.
+    """
+    import subprocess
+    import json
 
     def snap_fn(blocks_8d, scale=0.5):
         """
@@ -74,7 +60,7 @@ def authentic_e8_snap():
 
         blocks_json = json.dumps([list(float(x) for x in b) for b in blocks_8d])
         proc = subprocess.run(
-            [str(r4_bin), "snap", "--scale", str(scale)],
+            [str(r4_inspect_bin), "snap", "--scale", str(scale)],
             input=blocks_json,
             text=True,
             capture_output=True,
@@ -85,4 +71,3 @@ def authentic_e8_snap():
         return snapped[0] if is_single else snapped
 
     return snap_fn
-
