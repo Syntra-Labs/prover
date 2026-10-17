@@ -16,7 +16,7 @@ BENCHMARK_THEOREMS = [
         "id": "prop_and_comm",
         "name": "Conjunction Commutativity",
         "category": "propositional",
-        "lean_code": "theorem and_comm (p q : Prop) (h : p ∧ q) : q ∧ p := by",
+        "lean_code": "theorem my_and_comm (p q : Prop) (h : p ∧ q) : q ∧ p := by",
         "target_proof": "cases h with | intro hp hq => exact ⟨hq, hp⟩",
         "expected_tactics": ["rcases h with ⟨hp, hq⟩; exact ⟨hq, hp⟩", "exact ⟨h.right, h.left⟩"]
     },

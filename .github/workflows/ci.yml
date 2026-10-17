@@ -1,0 +1,112 @@
+name: Prover CI & Formal Verification
+
+on:
+  push:
+    branches: [leanDojo]
+  pull_request:
+    branches: [leanDojo]
+
+concurrency:
+  group: prover-ci-${{ github.event_name }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  audit-and-lint:
+    name: Reviewability & Task Linter
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Verify Source Tasks DAG
+        run: python3 scripts/lint_tasks.py
+
+      - name: Verify PR Reviewability Diff Budget
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          python3 scripts/lint_diff_size.py --compare-base origin/${{ github.base_ref }}
+
+  formal-verification:
+    name: LexLean & PrismPM Conformance
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Checkout PrismPM SDK
+        uses: actions/checkout@v4
+        with:
+          repository: UOR-Foundation/PrismPM
+          ref: 09f8b916023cbb7db945b8e8267eebba25965f26
+          path: vendor/prismpm
+
+      - name: Set up Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo Dependencies & Build Targets
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            vendor/prismpm/target/
+            vendor/prismpm/vendor/lexlean/target/
+          key: ${{ runner.os }}-cargo-prismpm-${{ hashFiles('vendor/prismpm/Cargo.lock', 'vendor/prismpm/vendor/lexlean/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-prismpm-
+
+      - name: Install Elan and Lean 4
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> $GITHUB_PATH
+          source "$HOME/.elan/env"
+          elan toolchain install leanprover/lean4:v4.32.1
+          elan default leanprover/lean4:v4.32.1
+          lean --version
+
+      - name: Build LexLean & PrismPM Binaries
+        run: |
+          cargo build --manifest-path vendor/prismpm/vendor/lexlean/Cargo.toml --bin lexlean --ignore-rust-version
+          cargo build --manifest-path vendor/prismpm/Cargo.toml --bin prismpm --ignore-rust-version
+
+      - name: Run LexLean Check
+        run: ./vendor/prismpm/vendor/lexlean/target/debug/lexlean --project specs/lexlean.toml check
+
+      - name: Run LexLean Verify (Formal Proof Verification)
+        run: ./vendor/prismpm/vendor/lexlean/target/debug/lexlean --project specs/lexlean.toml verify
+
+      - name: Run PrismPM Conformance Check
+        run: ./vendor/prismpm/target/debug/prismpm --project specs check
+
+  test-suite:
+    name: Geometric Falsification Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Test Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install pytest numpy
+
+      - name: Run Pytest Suite
+        run: pytest tests/

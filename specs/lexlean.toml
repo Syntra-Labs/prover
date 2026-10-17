@@ -5,6 +5,7 @@ module_prefix = "ProverEngine"
 source_roots = ["src"]
 entrypoints = [
   "src/Foundation/Library/V1/Model.lex.tex",
+  "src/Foundation/Specification/V1/TaskContract.lex.tex",
   "src/ProverEngine.lex.tex",
 ]
 build_root = ".lexlean"

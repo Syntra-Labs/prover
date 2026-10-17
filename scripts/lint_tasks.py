@@ -161,11 +161,12 @@ def validate_dag(tasks: List[Dict[str, Any]]) -> List[str]:
             
     return errors
 
-def check_staged_resolutions() -> List[str]:
+def check_staged_resolutions(active_tasks: List[Dict[str, Any]]) -> List[str]:
     """
     Guarantees that a TODO cannot disappear silently.
     If a git commit deletes a TODO line, it checks that the staged commit
     includes a corresponding record in logs/ or an explicit resolution note.
+    In-place task modifications (same ID) are allowed without resolution logs.
     """
     import subprocess
     errors = []
@@ -180,12 +181,15 @@ def check_staged_resolutions() -> List[str]:
     except Exception:
         return errors
         
-    deleted_todos = []
+    raw_deleted_todos = []
     for line in diff.splitlines():
         if line.startswith("-") and not line.startswith("---"):
             m = re.search(r'(?:TODO|FIXME)\(([a-zA-Z0-9_\-]+)\s*\|', line)
             if m:
-                deleted_todos.append(m.group(1))
+                raw_deleted_todos.append(m.group(1))
+
+    active_task_ids = {t["id"] for t in active_tasks}
+    deleted_todos = [tid for tid in raw_deleted_todos if tid not in active_task_ids]
                 
     if deleted_todos:
         try:
@@ -235,15 +239,20 @@ def check_staged_resolutions() -> List[str]:
     return errors
 
 def main():
+    tasks, parse_errors = scan_tasks()
+    dag_errors = validate_dag(tasks)
+    resolution_errors = check_staged_resolutions(tasks)
+    
+    all_errors = parse_errors + dag_errors + resolution_errors
+    
+    if "--json" in sys.argv:
+        import json
+        print(json.dumps({"tasks": tasks, "errors": all_errors, "root": str(ROOT)}))
+        sys.exit(0 if not all_errors else 1)
+
     print("=" * 70)
     print("SOURCE-FIRST TASK & INVARIANT LINTER")
     print("=" * 70)
-    
-    tasks, parse_errors = scan_tasks()
-    dag_errors = validate_dag(tasks)
-    resolution_errors = check_staged_resolutions()
-    
-    all_errors = parse_errors + dag_errors + resolution_errors
     
     if all_errors:
         print(f"\n[FAILED] Found {len(all_errors)} task specification errors:\n")

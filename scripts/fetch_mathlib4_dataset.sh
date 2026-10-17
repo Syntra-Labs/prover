@@ -2,13 +2,20 @@
 set -e
 
 DEST_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../vendor/benchsets/mathlib4" && pwd)"
+export DEST_DIR
 mkdir -p "${DEST_DIR}"
 
 echo "=================================================="
 echo "Fetching Mathlib4 dataset into ${DEST_DIR}"
 echo "=================================================="
 
-python3 - << 'PYEOF'
+PYTHON_BIN="python3"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+if [ -f "$REPO_ROOT/.venv/bin/python" ]; then
+    PYTHON_BIN="$REPO_ROOT/.venv/bin/python"
+fi
+
+"$PYTHON_BIN" - << 'PYEOF'
 from huggingface_hub import hf_hub_download
 import shutil, os, sys
 
@@ -34,4 +41,4 @@ for src, dst_name in files:
 
 print("\nAll Mathlib4 dataset files are present and verified!")
 PYEOF
-chmod +x /home/yassine/code/prover/scripts/fetch_mathlib4_dataset.sh
+chmod +x "${BASH_SOURCE[0]}"
