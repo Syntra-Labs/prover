@@ -145,3 +145,4 @@ fi
     ${RESUME_ARG[@]+"${RESUME_ARG[@]}"}
 
 echo "==> Training finished successfully. Artifacts saved in: $OUT_DIR"
+bash "$REPO_ROOT/scripts/persist_checkpoint_cloud.sh" "$OUT_DIR" "stage1_pretrain"

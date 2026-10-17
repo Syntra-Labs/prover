@@ -39,3 +39,4 @@ echo "=========================================================="
     checkpoint_every=200
 
 echo "==> Stage 2 Masked SFT finished successfully. Artifacts saved in: $OUT_DIR"
+bash "$REPO_ROOT/scripts/persist_checkpoint_cloud.sh" "$OUT_DIR" "stage2_masked_sft"
