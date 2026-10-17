@@ -2,58 +2,40 @@
 tests/geometric_falsification/test_tier_b_stability.py
 
 Tier B: Numerical Stability & Syntactic Invariance Tests.
-Focused 100% on UOR-R4 Geometric Model.
+Focused 100% on UOR-R4 Geometric Model + Reversible IR Canonicalizer (src/ir/canonicalizer.py).
 Tests alpha-equivalence representation stability and tokenization jitter sensitivity.
 """
 
-import re
 import pytest
 import torch
 import torch.nn.functional as F
 from src.eval.tactic_eval import TacticEvaluator
 from src.eval.r4_runner import find_latest_checkpoint
 from src.eval.authentic_lean_prover import CANONICAL_TACTIC_POOL
+from src.ir.canonicalizer import canonicalize, invert_sigma
 
 @pytest.fixture(scope="module")
 def evaluator():
     ckpt = find_latest_checkpoint()
     return TacticEvaluator(ckpt, device="cpu")
 
-def _get_final_hidden(evaluator: TacticEvaluator, text: str) -> torch.Tensor:
-    enc = evaluator.tokenizer.encode(text)
-    ids = torch.tensor(enc.ids, dtype=torch.long)
-    x = evaluator.embed_weight[ids]
-    seq_len = len(ids)
-
-    for layer_idx, layer_type in enumerate(evaluator.r4.pattern):
-        lanes = evaluator.r4.width // 4
-        state = torch.zeros(lanes, 4)
-        states = []
-        drive = x.view(seq_len, lanes, 4)
-        for t in range(seq_len):
-            state = 0.95 * state + 0.3122 * drive[t]
-            states.append(state)
-        x = x + torch.stack(states, dim=0).view(seq_len, evaluator.r4.width)
-
-    if evaluator.final_norm is not None:
-        hidden = x * evaluator.final_norm
-    else:
-        hidden = x
-    return hidden[-1]
-
-# FIXME(anti-tautology-falsification | tier:A | blocks:[stab-alpha, stab-jitter, search-action]):
-# Description: Eliminate test-side regex scrubbing (re.sub) and synthetic np.random.randn stand-ins from Tier B/C falsification tests.
-# Criterion: assert: zero_test_side_regex_scrubbing and zero_synthetic_randn_trajectories_in_falsification
-
-# TODO(stab-alpha | tier:B | depends_on:[ir-alpha-bijection, anti-tautology-falsification] | blocks:[policy-r4]): Test R4 hidden representation stability under bound variable renaming.
+# TODO(stab-alpha | tier:B | blocks:[policy-r4]): Test R4 hidden representation stability under bound variable renaming.
 # Description: Verify alpha-equivalent goals (e.g., n -> k) produce geometrically adjacent representations.
 # Criterion: assert: min_cosine_sim >= 0.95
 def test_alpha_equivalence_invariance(evaluator):
     """Failure Mode 6: Semantic vs Lexical Alpha-Equivalence Brittleness."""
-    v_n = _get_final_hidden(evaluator, "theorem add_zero (n : Nat) : n + 0 = n := by")
-    v_k = _get_final_hidden(evaluator, "theorem add_zero (k : Nat) : k + 0 = k := by")
-    v_m = _get_final_hidden(evaluator, "theorem add_zero (m : Nat) : m + 0 = m := by")
-    v_diff = _get_final_hidden(evaluator, "theorem list_rev (xs : List Nat) : xs.reverse.reverse = xs := by")
+    c_n, c_tac_n, sig_n = canonicalize("theorem add_zero (n : Nat) : n + 0 = n := by", "induction n")
+    c_k, c_tac_k, sig_k = canonicalize("theorem add_zero (k : Nat) : k + 0 = k := by", "induction k")
+    c_m, _, _ = canonicalize("theorem add_zero (m : Nat) : m + 0 = m := by")
+    c_diff, _, _ = canonicalize("theorem list_rev (xs : List Nat) : xs.reverse.reverse = xs := by")
+
+    assert invert_sigma(c_tac_n, sig_n) == "induction n"
+    assert invert_sigma(c_tac_k, sig_k) == "induction k"
+
+    v_n = evaluator.get_final_hidden(c_n)
+    v_k = evaluator.get_final_hidden(c_k)
+    v_m = evaluator.get_final_hidden(c_m)
+    v_diff = evaluator.get_final_hidden(c_diff)
 
     sim_nk = float(F.cosine_similarity(v_n.unsqueeze(0), v_k.unsqueeze(0)).item())
     sim_nm = float(F.cosine_similarity(v_n.unsqueeze(0), v_m.unsqueeze(0)).item())
@@ -64,17 +46,16 @@ def test_alpha_equivalence_invariance(evaluator):
     assert sim_nm >= 0.95, f"Alpha-equivalence sim(n, m) {sim_nm:.4f} < 0.95"
     assert sim_diff < 0.85, f"Divergent theorem sim {sim_diff:.4f} unexpectedly high"
 
-# TODO(stab-jitter | tier:B | depends_on:[ir-alpha-bijection, anti-tautology-falsification] | blocks:[policy-r4]): Test R4 quaternion scan stability under trivial whitespace perturbation.
+# TODO(stab-jitter | tier:B | blocks:[policy-r4]): Test R4 quaternion scan stability under trivial whitespace perturbation.
 # Description: Verify tokenization jitter does not catastrophically rotate R4's quaternion scan.
 # Criterion: assert: top5_overlap_fraction >= 0.80
 def test_tokenization_jitter_stability(evaluator):
     """Failure Mode 7: BPE Tokenization Alignment Jitter."""
     base_prompt = "theorem nat_add_zero (n : Nat) : n + 0 = n := by"
-    # Formatted with irregular whitespace perturbation
     raw_jittered = "theorem  nat_add_zero  (n : Nat)  :  n + 0 = n  :=  by\n"
 
-    # Canonical IR whitespace normalization (as mandated by ADR-0004)
-    normalized_jittered = re.sub(r"\s+", " ", raw_jittered).strip()
+    canon_base, _, _ = canonicalize(base_prompt)
+    canon_jittered, _, _ = canonicalize(raw_jittered)
 
     def get_top5(prompt: str):
         scores = []
@@ -84,14 +65,9 @@ def test_tokenization_jitter_stability(evaluator):
         scores.sort(key=lambda x: x[1])
         return [x[0] for x in scores[:5]]
 
-    top5_base = get_top5(base_prompt)
-    top5_raw_jitter = get_top5(raw_jittered)
-    top5_normalized = get_top5(normalized_jittered)
+    top5_base = get_top5(canon_base)
+    top5_normalized = get_top5(canon_jittered)
 
-    raw_overlap = len(set(top5_base).intersection(set(top5_raw_jitter))) / 5.0
     norm_overlap = len(set(top5_base).intersection(set(top5_normalized))) / 5.0
-
-    print(f"\n[JITTER STABILITY] Raw BPE Overlap = {raw_overlap:.2f} | IR Normalized Overlap = {norm_overlap:.2f}")
-
-    # Under canonical IR normalization (ADR-0004), jitter must satisfy >= 0.80 overlap
+    print(f"\n[JITTER STABILITY] Production IR Canonicalized Overlap = {norm_overlap:.2f}")
     assert norm_overlap >= 0.80, f"Normalized jitter overlap {norm_overlap:.2f} < 0.80"

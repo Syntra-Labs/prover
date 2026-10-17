@@ -35,8 +35,8 @@ class TacticEvaluator:
         enc = self.tokenizer.encode(text)
         ids = torch.tensor(enc.ids, dtype=torch.long, device=self.device)
         with torch.no_grad():
-            hidden, _, _ = self.r4.forward_hidden_and_logits(ids)
-        return hidden[-1]
+            self.r4.forward_hidden_and_logits(ids)
+        return self.r4.last_recurrence_state
         
     def evaluate_tactic_likelihood(self, prompt: str, target_tactic: str):
         full_text = prompt + " " + target_tactic

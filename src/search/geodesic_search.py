@@ -56,7 +56,7 @@ class SpeculativeGeodesicRouter:
         self.margin_threshold = margin_threshold
         self.max_beam_width = max_beam_width
 
-    # FIXME(param-tactic-synthesis | tier:B | depends_on:[stage2-response-mask, ir-alpha-bijection] | blocks:[macro-decider]):
+    # FIXME(param-tactic-synthesis | tier:B | blocks:[macro-decider]):
     # Description: Factorize tactic emission into (1) geodesic macro-tactic head routing and (2) contextual argument/premise generation without ground-truth candidate pool leakage.
     # Criterion: assert: zero_ground_truth_candidate_injection and emits_full_parameterized_tactics
     def rank_candidates(

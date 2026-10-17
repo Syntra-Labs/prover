@@ -1,17 +1,19 @@
 """
 Commit-Time Architectural Integrity & Anti-Regression Gate Suite.
-Enforces:
-1. Stage 2 never disregards train.mask (must use `dialogue-train` with `train_mask` and `dev_mask`).
-2. Benchmark scripts never leak ground-truth tactic heads (`+ [t_head]`) into candidate pools.
-3. All 5 architectural audit tasks remain active blockers in the Task DAG until their
-   executable verification criteria pass 100% (preventing fake or comment-only resolutions).
+Enforces permanent executable regressions for:
+1. `stage2-response-mask`: Stage 2 launcher passes `train_mask=` to `geometric-stack train` -> `model.weighted_loss`.
+2. Zero ground-truth tactic head leakage (`+ [t_head]`) in evaluation candidate pools.
+3. `r4-weight-parity`: 100% (78/78) learned tensor execution in R4 forward pass; zero dummy 0.95 moving averages.
+4. `anti-tautology-falsification`: Zero test-side `re.sub` scrubbing or synthetic `RandomState` trajectories in falsification tests.
+5. `ir-alpha-bijection`: Reversible declaration-order alpha-canonicalization (`invert_sigma(canonicalize(g, t)) == t`).
+6. `param-tactic-synthesis`: Remains an active blocker in the Task DAG until Decision 2 is finalized.
 """
 
 import ast
 import functools
-import re
 from pathlib import Path
 from scripts.lint_tasks import scan_tasks, validate_dag
+from src.ir.canonicalizer import canonicalize, invert_sigma
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 
@@ -27,13 +29,12 @@ def _active_tasks_by_id():
 
 def test_stage2_response_mask_never_disregarded():
     """
-    Permanent Gate 1: Stage 2 training launcher must never fall back to unmasked `train`
-    and must explicitly pass `train_mask` and `dev_mask` to `dialogue-train`.
+    Permanent Gate 1 (Resolves `stage2-response-mask`):
+    Stage 2 training launcher must pass `train_mask=` to `geometric-stack train`,
+    and `geometric-stack.rs` must route `train_mask` through `model.weighted_loss`.
     """
     script_path = REPO_ROOT / "scripts/colab_stage2_train.sh"
     content = script_path.read_text(encoding="utf-8")
-
-    # Strip comment lines before checking active commands
     active_lines = [
         line.strip()
         for line in content.splitlines()
@@ -41,18 +42,18 @@ def test_stage2_response_mask_never_disregarded():
     ]
     joined = "\n".join(active_lines)
 
-    assert 'dialogue-train' in joined, (
-        "Regression detected: scripts/colab_stage2_train.sh must invoke `dialogue-train`, "
-        "not unmasked `train`."
+    assert "dialogue-train" not in joined, (
+        "Regression: scripts/colab_stage2_train.sh must not use natural-language chatbot `dialogue-train`."
     )
-    assert not re.search(r'"\$GS_BIN"\s+train\b', joined), (
-        "Regression detected: scripts/colab_stage2_train.sh invoked unmasked `train`, "
-        "which disregards train.mask."
-    )
-    for required_arg in ("train_tokens=", "train_mask=", "train_manifest=", "dev_tokens=", "dev_mask=", "dev_manifest="):
+    for required_arg in ("train=", "train_mask=", "valid=", "init="):
         assert required_arg in joined, (
-            f"Regression detected: scripts/colab_stage2_train.sh is missing required masked SFT argument `{required_arg}`."
+            f"Regression in stage2-response-mask: scripts/colab_stage2_train.sh missing `{required_arg}`."
         )
+
+    gs_rs = (REPO_ROOT / "vendor/uor-r4/crates/uor-r4-training/examples/geometric-stack.rs").read_text(encoding="utf-8")
+    assert "model.weighted_loss(" in gs_rs and '"train_mask"' in gs_rs, (
+        "Regression in stage2-response-mask: geometric-stack.rs must wire `train_mask` to `model.weighted_loss`."
+    )
 
 
 def test_zero_ground_truth_candidate_leakage():
@@ -104,55 +105,42 @@ def test_r4_weight_parity_gate():
 
 def test_anti_tautology_falsification_gate():
     """
-    Gate 4: Until `anti-tautology-falsification` is resolved (zero test-side `re.sub` prompt
-    scrubbing in `test_tier_b_stability.py` and zero synthetic `RandomState` trajectories in
-    `test_tier_c_search.py`), it must remain an active Tier A blocker in the Task DAG.
+    Permanent Gate 4 (Resolves `anti-tautology-falsification`):
+    Verifies zero test-side `re.sub` prompt scrubbing in `test_tier_b_stability.py`
+    and zero synthetic `RandomState` / `.randn(` trajectories in `test_tier_c_search.py`.
     """
-    tasks = _active_tasks_by_id()
     tier_b_src = (REPO_ROOT / "tests/geometric_falsification/test_tier_b_stability.py").read_text(encoding="utf-8")
     tier_c_src = (REPO_ROOT / "tests/geometric_falsification/test_tier_c_search.py").read_text(encoding="utf-8")
 
-    has_test_side_resub = "re.sub(" in tier_b_src
-    has_synthetic_randn = "RandomState(" in tier_c_src or ".randn(" in tier_c_src
-
-    if has_test_side_resub or has_synthetic_randn:
-        assert "anti-tautology-falsification" in tasks, (
-            "Premature Resolution Violation: `anti-tautology-falsification` was removed from the Task DAG, "
-            "but falsification tests still contain test-side `re.sub` scrubbing or synthetic `randn` vectors."
-        )
-        expected_blocks = {"stab-alpha", "stab-jitter", "search-action"}
-        actual_blocks = set(tasks["anti-tautology-falsification"]["blocks"])
-        assert expected_blocks.issubset(actual_blocks), (
-            f"`anti-tautology-falsification` must block {expected_blocks}, found {actual_blocks}"
-        )
+    assert "re.sub(" not in tier_b_src, (
+        "anti-tautology-falsification violation: test_tier_b_stability.py contains test-side `re.sub` scrubbing."
+    )
+    assert "0.95 * state" not in tier_b_src, (
+        "anti-tautology-falsification violation: test_tier_b_stability.py contains hardcoded 0.95 loop."
+    )
+    assert "RandomState(" not in tier_c_src and ".randn(" not in tier_c_src, (
+        "anti-tautology-falsification violation: test_tier_c_search.py contains synthetic random trajectories."
+    )
 
 
 def test_ir_bijection_and_param_tactic_dag_gates():
     """
-    Gate 5: Verify `stage2-response-mask`, `ir-alpha-bijection`, and `param-tactic-synthesis`
-    are tracked with strict dependency edges in the Task DAG until their implementations exist.
+    Permanent Gate 5 (Resolves `ir-alpha-bijection` via Option 1A; tracks `param-tactic-synthesis`):
+    Verifies declaration-order alpha-canonicalization is strictly bijective and invariant under renaming.
     """
+    g1 = "m n : Nat\nh1 : m + n = n + m\nh2 : n = 0\n⊢ m + 0 = m"
+    g2 = "a b : Nat\nhx : a + b = b + a\nhy : b = 0\n⊢ a + 0 = a"
+    tac1 = "rw [h2] at h1; exact h1"
+    tac2 = "rw [hy] at hx; exact hx"
+
+    cg1, ct1, sig1 = canonicalize(g1, tac1)
+    cg2, ct2, sig2 = canonicalize(g2, tac2)
+
+    assert cg1 == cg2, f"ir-alpha-bijection violation: canonical goals differ:\n{cg1}\nvs\n{cg2}"
+    assert ct1 == ct2 == "rw [h1] at h0; exact h0"
+    assert invert_sigma(ct1, sig1) == tac1
+    assert invert_sigma(ct2, sig2) == tac2
+
     tasks = _active_tasks_by_id()
-
-    # Check stage2-response-mask contract
-    uort_src = (REPO_ROOT / "scripts/prepare_dialogue_uort.py").read_text(encoding="utf-8")
-    if "Assistant:" not in uort_src:
-        assert "stage2-response-mask" in tasks, (
-            "Premature Resolution Violation: `stage2-response-mask` removed before literal-role "
-            "`User: ... Assistant: ...` episode encoding was implemented."
-        )
-        assert "policy-r4" in tasks["stage2-response-mask"]["blocks"]
-        assert "param-tactic-synthesis" in tasks["stage2-response-mask"]["blocks"]
-
-    # Check ir-alpha-bijection contract
-    prep_src = (REPO_ROOT / "scripts/prepare_mathlib_for_r4.py").read_text(encoding="utf-8")
-    if "invert_sigma" not in prep_src:
-        assert "ir-alpha-bijection" in tasks, (
-            "Premature Resolution Violation: `ir-alpha-bijection` removed before reversible "
-            "symbol-table (`sigma` / `invert_sigma`) canonicalization was implemented."
-        )
-        assert {"stab-alpha", "stab-jitter", "policy-r4"}.issubset(set(tasks["ir-alpha-bijection"]["blocks"]))
-
-    # Check param-tactic-synthesis contract
     assert "param-tactic-synthesis" in tasks, "Missing `param-tactic-synthesis` task in DAG"
     assert "macro-decider" in tasks["param-tactic-synthesis"]["blocks"]

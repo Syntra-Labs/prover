@@ -1,4 +1,4 @@
-# TODO(policy-r4 | tier:B | depends_on:[stab-alpha, stab-jitter, stage2-response-mask, ir-alpha-bijection] | blocks:[macro-decider]):
+# TODO(policy-r4 | tier:B | depends_on:[stab-alpha, stab-jitter] | blocks:[macro-decider]):
 # Description: Train linear/MLP classification head over R4 1024-dim hidden states mapping to 50 discrete tactics.
 # Criterion: assert: top1_accuracy >= 0.30 and top5_accuracy >= 0.65 on Mathlib 4 validation holdout
 

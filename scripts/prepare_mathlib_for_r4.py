@@ -50,9 +50,8 @@ def train_or_load_tokenizer(samples: List[str], target_vocab_size: int = 4096) -
     print(f"Tokenizer saved to {tok_path}")
     return tokenizer
 
-# FIXME(ir-alpha-bijection | tier:B | blocks:[stab-alpha, stab-jitter, policy-r4]):
-# Description: Implement reversible alpha-canonicalization symbol table (sigma) mapping local variables/hypotheses to positional IDs and inverting sigma^-1 before Lean execution.
-# Criterion: assert: invert_sigma(canonicalize(goal, tactic)) == tactic and alpha_renamed_goals_produce_identical_ir
+from src.ir.canonicalizer import canonicalize, invert_sigma
+
 def extract_state_tactic_pairs(json_path: Path) -> List[Tuple[str, str]]:
     if not json_path.exists():
         print(f"Warning: {json_path} not found.")
@@ -69,7 +68,8 @@ def extract_state_tactic_pairs(json_path: Path) -> List[Tuple[str, str]]:
             sb = step.get("state_before", "").strip()
             tac = step.get("tactic", "").strip()
             if sb and tac:
-                pairs.append((sb, tac))
+                canon_sb, canon_tac, _ = canonicalize(sb, tac)
+                pairs.append((canon_sb, canon_tac))
     print(f"  Extracted {len(pairs)} (state, tactic) pairs from {json_path.name}")
     return pairs
 

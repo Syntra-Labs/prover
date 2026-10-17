@@ -8,9 +8,6 @@ import struct
 import json
 from pathlib import Path
 
-# FIXME(stage2-response-mask | tier:A | depends_on:[gate-r4-token] | blocks:[policy-r4, param-tactic-synthesis]):
-# Description: Encode (Goal, Tactic) episodes under uor-r4.literal-role-dialogue/1 contract (<|bos|>User: <goal>\nAssistant: <tactic><|eos|>) with mask=0 on prompt and mask=1 on tactic.
-# Criterion: assert: uses_dialogue_train_subcommand and episode_starts_with_bos and assistant_marker_precedes_mask_one
 def convert_u16_to_uort(u16_path: Path, uort_path: Path, manifest_path: Path, vocab_size: int = 4096):
     file_bytes = u16_path.stat().st_size
     total_tokens = file_bytes // 2

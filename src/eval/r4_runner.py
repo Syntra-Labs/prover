@@ -157,6 +157,7 @@ class R4PyTorchModel:
         for layer_idx, layer_type in enumerate(self.pattern):
             if layer_type == 'r':
                 mixed, full_states = self._recurrence_layer(layer_idx, x)
+                self.last_recurrence_state = full_states[-1].reshape(-1)
                 x = x + mixed
                 layer_diagnostics.append({
                     "layer": layer_idx,
