@@ -22,6 +22,8 @@ except ImportError:
     sys.exit(1)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 BENCHSET_DIR = REPO_ROOT / "vendor/benchsets/mathlib4"
 OUTPUT_DIR = REPO_ROOT / "data/mathlib4"
 
@@ -52,7 +54,7 @@ def train_or_load_tokenizer(samples: List[str], target_vocab_size: int = 4096) -
 
 from src.ir.canonicalizer import canonicalize, invert_sigma
 
-def extract_state_tactic_pairs(json_path: Path) -> List[Tuple[str, str]]:
+def extract_state_tactic_pairs(json_path: Path, max_pairs: int = 0) -> List[Tuple[str, str]]:
     if not json_path.exists():
         print(f"Warning: {json_path} not found.")
         return []
@@ -70,19 +72,23 @@ def extract_state_tactic_pairs(json_path: Path) -> List[Tuple[str, str]]:
             if sb and tac:
                 canon_sb, canon_tac, _ = canonicalize(sb, tac)
                 pairs.append((canon_sb, canon_tac))
+                if max_pairs > 0 and len(pairs) >= max_pairs:
+                    print(f"  Extracted {len(pairs)} (state, tactic) pairs from {json_path.name} (capped at {max_pairs})")
+                    return pairs
     print(f"  Extracted {len(pairs)} (state, tactic) pairs from {json_path.name}")
     return pairs
 
 def main():
     train_json = BENCHSET_DIR / "train.json"
     val_json = BENCHSET_DIR / "val.json"
+    max_train = int(os.environ.get("MAX_TRAIN_PAIRS", "0"))
     
     if not val_json.exists():
         print(f"ERROR: {val_json} not found. Please run scripts/fetch_mathlib4_dataset.sh first.")
         sys.exit(1)
         
     val_pairs = extract_state_tactic_pairs(val_json)
-    train_pairs = extract_state_tactic_pairs(train_json) if train_json.exists() else []
+    train_pairs = extract_state_tactic_pairs(train_json, max_pairs=max_train) if train_json.exists() else []
     
     if not train_pairs:
         print("Using validation set as train & val sample since full train.json is not processed yet.")
