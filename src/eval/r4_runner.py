@@ -6,7 +6,9 @@ Runs the R4 214M model forward pass on Lean theorem states and logs:
 - Perplexity over expected ground-truth tactics
 """
 
+import os
 import sys
+import glob
 import json
 import torch
 import torch.nn as nn
@@ -130,12 +132,26 @@ class R4PyTorchModel:
             "layer_diagnostics": layer_diagnostics
         }
 
+def find_latest_checkpoint():
+    import glob
+    candidates = []
+    candidates.extend(glob.glob("/content/drive/MyDrive/r4_checkpoints/*"))
+    candidates.extend(glob.glob("reports/r4_*"))
+    valid = [c for c in candidates if (Path(c) / "model/model.safetensors").exists() or (Path(c) / "model.safetensors").exists()]
+    if valid:
+        valid.sort(key=lambda p: os.path.getmtime(p), reverse=True)
+        return valid[0]
+    return "reports/r4_mathlib_20261017_004540"
+
 if __name__ == "__main__":
-    collector = GeometricMetricsCollector("r4_214m")
-    runner = R4PyTorchModel("/content/prover/checkpoints/caseyallard/uor-r4-geometric-214m/chat-smoltalk-b16")
+    ckpt_path = sys.argv[1] if len(sys.argv) > 1 else find_latest_checkpoint()
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    runner = R4PyTorchModel(ckpt_path, device=device)
+    collector = GeometricMetricsCollector(f"r4_{runner.width}")
     
     print("=" * 60)
-    print("EVALUATING R4 ON LEAN 4 BENCHMARKS")
+    print(f"EVALUATING R4 ({runner.width}w, pattern={runner.pattern}) ON LEAN 4 BENCHMARKS")
+    print(f"Checkpoint: {ckpt_path}")
     print("=" * 60)
     
     for thm in BENCHMARK_THEOREMS:
@@ -143,13 +159,17 @@ if __name__ == "__main__":
         res = runner.evaluate_sequence(thm["lean_code"], thm["target_proof"])
         
         # Summary metrics
-        first_r = res["layer_diagnostics"][0]["quaternion"]
-        last_r = res["layer_diagnostics"][-1]["quaternion"]
+        r_layers = [d for d in res["layer_diagnostics"] if "quaternion" in d]
+        first_r = r_layers[0]["quaternion"] if r_layers else None
+        last_r = r_layers[-1]["quaternion"] if r_layers else None
         
         print(f"  Tokens: {res['token_count']}")
-        print(f"  Layer 00 Q-Norm: mean={first_r['mean_norm']:.3f}, S3-div={first_r['s3_divergence']:.3f}")
-        print(f"  Layer 15 Q-Norm: mean={last_r['mean_norm']:.3f}, S3-div={last_r['s3_divergence']:.3f}")
-        print(f"  Effective Rank: {res['layer_diagnostics'][-1]['spectral']['effective_rank']:.2f}")
+        if first_r:
+            print(f"  Layer {r_layers[0]['layer']:02d} Q-Norm: mean={first_r['mean_norm']:.3f}, S3-div={first_r['s3_divergence']:.3f}")
+        if last_r:
+            print(f"  Layer {r_layers[-1]['layer']:02d} Q-Norm: mean={last_r['mean_norm']:.3f}, S3-div={last_r['s3_divergence']:.3f}")
+        last_spectral = res["layer_diagnostics"][-1]["spectral"]
+        print(f"  Effective Rank: {last_spectral['effective_rank']:.2f}")
         
         collector.log_step(thm["id"], res)
         

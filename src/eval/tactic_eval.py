@@ -99,12 +99,28 @@ class TacticEvaluator:
             "token_losses": token_losses
         }
 
+def find_latest_checkpoint():
+    import glob
+    import os
+    candidates = []
+    candidates.extend(glob.glob("/content/drive/MyDrive/r4_checkpoints/*"))
+    candidates.extend(glob.glob("reports/r4_*"))
+    valid = [c for c in candidates if (Path(c) / "model/model.safetensors").exists() or (Path(c) / "model.safetensors").exists()]
+    if valid:
+        valid.sort(key=lambda p: os.path.getmtime(p), reverse=True)
+        return valid[0]
+    return "reports/r4_mathlib_20261017_004540"
+
 if __name__ == "__main__":
+    import sys
+    ckpt_path = sys.argv[1] if len(sys.argv) > 1 else find_latest_checkpoint()
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
     collector = GeometricMetricsCollector("r4_tactic_eval")
-    evaluator = TacticEvaluator("/content/prover/checkpoints/caseyallard/uor-r4-geometric-214m/chat-smoltalk-b16")
+    evaluator = TacticEvaluator(ckpt_path, device=device)
     
     print("=" * 65)
     print("EVALUATING R4 TACTIC TOKEN LIKELIHOOD ON LEAN 4 BENCHMARKS")
+    print(f"Checkpoint: {ckpt_path} on {device}")
     print("=" * 65)
     
     for thm in BENCHMARK_THEOREMS:

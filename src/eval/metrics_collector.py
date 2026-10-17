@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Dict, Any, List
 
 class GeometricMetricsCollector:
-    def __init__(self, model_name: str, log_dir: str = "/content/prover/logs"):
+    def __init__(self, model_name: str, log_dir: str = "logs"):
         self.model_name = model_name
         self.log_dir = Path(log_dir)
         self.log_dir.mkdir(parents=True, exist_ok=True)
