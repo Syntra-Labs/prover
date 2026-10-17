@@ -11,3 +11,6 @@ __pycache__/
 *.pyc
 .lexlean/
 zeta_data/
+data/
+reports/
+logs/
