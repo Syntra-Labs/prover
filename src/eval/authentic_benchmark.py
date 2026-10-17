@@ -85,7 +85,9 @@ def run_authentic_benchmark(num_steps: int = 20):
         print(f"  Target: '{tactic}' -> Discrete Tactic ID: {t_id} ({t_head})")
 
         # Evaluate canonical tactic heads (strictly fixed pool; zero ground-truth leakage)
-        prompt = f"Goal:\n{state}\n\nTactic:\n"
+        from src.ir.canonicalizer import canonicalize
+        canon_state, _, _ = canonicalize(state)
+        prompt = f"Goal:\n{canon_state}\n\nTactic:\n"
         eval_candidates = [k for k in TACTIC_MAP.keys() if k != "unknown"]
         scores = evaluator.rank_tactic_heads(prompt, eval_candidates)
 

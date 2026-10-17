@@ -79,8 +79,9 @@ def run_authentic_proving():
         print(f"Goal:   {thm['lean_code']}")
 
         # 1. Filter candidate tactics by LocalContext scope (Prefix IR AST constraint) and score with R4
-        from src.ir.canonicalizer import canonicalize
-        _, _, sigma = canonicalize(thm["lean_code"])
+        from src.ir.canonicalizer import canonicalize, invert_sigma
+        canon_goal, _, sigma = canonicalize(thm["lean_code"])
+        prompt = f"Goal:\n{canon_goal}\n\nTactic:\n"
         has_hyp = any(v.startswith("h") for v in sigma.values())
         has_conj = "∧" in thm["lean_code"]
         tactic_scores = []
@@ -89,8 +90,12 @@ def run_authentic_proving():
                 continue
             if "⟨" in tac and not has_conj:
                 continue
-            res = evaluator.evaluate_tactic_likelihood(thm["lean_code"], tac)
-            tactic_scores.append((tac, res["cross_entropy_loss"]))
+            if has_conj and tac == "exact h":
+                continue
+            _, canon_tac, _ = canonicalize(thm["lean_code"], tac)
+            res = evaluator.evaluate_tactic_likelihood(prompt, canon_tac)
+            surface_tac = invert_sigma(canon_tac, sigma)
+            tactic_scores.append((surface_tac, res["cross_entropy_loss"]))
 
         # Sort by lowest loss (highest model preference)
         tactic_scores.sort(key=lambda x: x[1])
