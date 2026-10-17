@@ -22,13 +22,8 @@ if command -v nvidia-smi &>/dev/null && nvidia-smi &>/dev/null; then
     esac
 
     echo "Detected GPU: $GPU_NAME (CUDA Compute Capability: $CAP)"
-    if [ "${CAP:-0}" -ge 80 ]; then
-        export CUDA_COMPUTE_CAP=$CAP
-        USE_CUDA=1
-    else
-        echo "Note: candle-kernels 0.9.2 bf16 WMMA requires sm_80+ (Ampere/L4/A100). Falling back to CPU build on $GPU_NAME (sm_$CAP)..."
-        USE_CUDA=0
-    fi
+    export CUDA_COMPUTE_CAP=$CAP
+    USE_CUDA=1
 else
     echo "No NVIDIA GPU detected. Proceeding with CPU acceleration..."
 fi
@@ -69,6 +64,18 @@ if [ -f "$REPO_ROOT/scripts/patches/uor_r4_train_mask.patch" ]; then
         git apply "$REPO_ROOT/scripts/patches/uor_r4_train_mask.patch" || true
 fi
 if [ "$USE_CUDA" -eq 1 ]; then
+    if [ "${CAP:-0}" -lt 80 ]; then
+        cargo fetch
+        python3 -c '
+import glob
+for p in glob.glob("/root/.cargo/registry/src/*/candle-kernels-*/src/moe/moe_wmma*.cu"):
+    t = open(p).read()
+    t = t.replace("LAUNCH_MOE_GGUF_PREFILL(nv_bfloat16);", "// sm_75")
+    t = t.replace("LAUNCH_MOE_WMMA(nv_bfloat16, 16, 16, 2)", "// sm_75")
+    t = t.replace("LAUNCH_MOE_WMMA(nv_bfloat16, 8, 32, 1)", "// sm_75")
+    open(p, "w").write(t)
+'
+    fi
     echo "Compiling with CUDA support (Compute Capability: $CAP)..."
     CARGO_INCREMENTAL=0 CUDA_COMPUTE_CAP=$CAP cargo build --release \
         -p uor-r4-training \

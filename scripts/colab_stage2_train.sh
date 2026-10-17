@@ -12,12 +12,7 @@ DATA_DIR="$REPO_ROOT/data/mathlib4"
 INIT_MODEL="${INIT_MODEL:-$REPO_ROOT/reports/r4_colab_run_20261017_053354/model}"
 
 if command -v nvidia-smi &>/dev/null && nvidia-smi &>/dev/null; then
-    RAW_CAP=$(nvidia-smi --query-gpu=compute_cap --format=csv,noheader | head -1 | tr -d ' .')
-    if [ "${RAW_CAP:-0}" -ge 80 ]; then
-        DEFAULT_DEVICE="cuda"
-    else
-        DEFAULT_DEVICE="cpu"
-    fi
+    DEFAULT_DEVICE="cuda"
 else
     DEFAULT_DEVICE="cpu"
 fi
