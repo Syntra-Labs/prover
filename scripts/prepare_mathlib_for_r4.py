@@ -50,7 +50,7 @@ def train_or_load_tokenizer(samples: List[str], target_vocab_size: int = 4096) -
     print(f"Tokenizer saved to {tok_path}")
     return tokenizer
 
-# FIXME(ir-alpha-bijection | tier:B | depends_on:[r4-weight-parity] | blocks:[stab-alpha, stab-jitter, policy-r4]):
+# FIXME(ir-alpha-bijection | tier:B | blocks:[stab-alpha, stab-jitter, policy-r4]):
 # Description: Implement reversible alpha-canonicalization symbol table (sigma) mapping local variables/hypotheses to positional IDs and inverting sigma^-1 before Lean execution.
 # Criterion: assert: invert_sigma(canonicalize(goal, tactic)) == tactic and alpha_renamed_goals_produce_identical_ir
 def extract_state_tactic_pairs(json_path: Path) -> List[Tuple[str, str]]:

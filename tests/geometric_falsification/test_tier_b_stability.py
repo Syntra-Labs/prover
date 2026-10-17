@@ -41,11 +41,11 @@ def _get_final_hidden(evaluator: TacticEvaluator, text: str) -> torch.Tensor:
         hidden = x
     return hidden[-1]
 
-# FIXME(anti-tautology-falsification | tier:A | depends_on:[r4-weight-parity] | blocks:[stab-alpha, stab-jitter, search-action]):
+# FIXME(anti-tautology-falsification | tier:A | blocks:[stab-alpha, stab-jitter, search-action]):
 # Description: Eliminate test-side regex scrubbing (re.sub) and synthetic np.random.randn stand-ins from Tier B/C falsification tests.
 # Criterion: assert: zero_test_side_regex_scrubbing and zero_synthetic_randn_trajectories_in_falsification
 
-# TODO(stab-alpha | tier:B | depends_on:[r4-weight-parity, ir-alpha-bijection, anti-tautology-falsification] | blocks:[policy-r4]): Test R4 hidden representation stability under bound variable renaming.
+# TODO(stab-alpha | tier:B | depends_on:[ir-alpha-bijection, anti-tautology-falsification] | blocks:[policy-r4]): Test R4 hidden representation stability under bound variable renaming.
 # Description: Verify alpha-equivalent goals (e.g., n -> k) produce geometrically adjacent representations.
 # Criterion: assert: min_cosine_sim >= 0.95
 def test_alpha_equivalence_invariance(evaluator):
@@ -64,7 +64,7 @@ def test_alpha_equivalence_invariance(evaluator):
     assert sim_nm >= 0.95, f"Alpha-equivalence sim(n, m) {sim_nm:.4f} < 0.95"
     assert sim_diff < 0.85, f"Divergent theorem sim {sim_diff:.4f} unexpectedly high"
 
-# TODO(stab-jitter | tier:B | depends_on:[r4-weight-parity, ir-alpha-bijection, anti-tautology-falsification] | blocks:[policy-r4]): Test R4 quaternion scan stability under trivial whitespace perturbation.
+# TODO(stab-jitter | tier:B | depends_on:[ir-alpha-bijection, anti-tautology-falsification] | blocks:[policy-r4]): Test R4 quaternion scan stability under trivial whitespace perturbation.
 # Description: Verify tokenization jitter does not catastrophically rotate R4's quaternion scan.
 # Criterion: assert: top5_overlap_fraction >= 0.80
 def test_tokenization_jitter_stability(evaluator):

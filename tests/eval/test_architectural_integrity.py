@@ -81,24 +81,25 @@ def test_zero_ground_truth_candidate_leakage():
 
 def test_r4_weight_parity_gate():
     """
-    Gate 3: Until `r4-weight-parity` is genuinely resolved (zero hardcoded 0.95 moving average
-    and full 78-tensor utilization or direct Rust binary execution), it must remain in the
-    Task DAG blocking downstream stability/policy/search tasks.
+    Permanent Gate 3 (Resolves `r4-weight-parity`):
+    Verifies zero hardcoded 0.95 moving average in `src/eval/tactic_eval.py` and `src/eval/r4_runner.py`,
+    and verifies live forward pass consumes 100% (all 78) of the learned tensors in `model.safetensors`.
     """
-    tasks = _active_tasks_by_id()
-    tactic_eval_src = (REPO_ROOT / "src/eval/tactic_eval.py").read_text(encoding="utf-8")
+    from src.eval.r4_runner import find_latest_checkpoint
+    from src.eval.tactic_eval import TacticEvaluator
 
-    has_dummy_ema = ("0.95 * state" in tactic_eval_src) or ("0.1 * x_norm" in tactic_eval_src)
-    if has_dummy_ema:
-        assert "r4-weight-parity" in tasks, (
-            "Premature Resolution Violation: `r4-weight-parity` was removed from the Task DAG, "
-            "but `src/eval/tactic_eval.py` still contains hardcoded weightless dummy operations (`0.95 * state` / `0.1 * x_norm`)."
+    for rel in ("src/eval/tactic_eval.py", "src/eval/r4_runner.py"):
+        src = (REPO_ROOT / rel).read_text(encoding="utf-8")
+        assert "0.95 * state" not in src and "0.1 * x_norm" not in src, (
+            f"Regression in {rel}: hardcoded dummy moving average detected (violates r4-weight-parity)."
         )
-        expected_blocks = {"stab-alpha", "stab-jitter", "policy-r4", "search-action", "search-dead-tactic"}
-        actual_blocks = set(tasks["r4-weight-parity"]["blocks"])
-        assert expected_blocks.issubset(actual_blocks), (
-            f"`r4-weight-parity` must block {expected_blocks}, found {actual_blocks}"
-        )
+
+    evaluator = TacticEvaluator(find_latest_checkpoint(), device="cpu")
+    res = evaluator.evaluate_tactic_likelihood("theorem t (n : Nat) : n = n := by", "rfl")
+    assert len(evaluator.r4.consumed_tensors) == len(evaluator.r4.tensors) == 78, (
+        f"r4-weight-parity violation: consumed {len(evaluator.r4.consumed_tensors)}/{len(evaluator.r4.tensors)} tensors."
+    )
+    assert res["cross_entropy_loss"] > 0.0
 
 
 def test_anti_tautology_falsification_gate():
