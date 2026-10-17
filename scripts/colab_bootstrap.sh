@@ -22,8 +22,13 @@ if command -v nvidia-smi &>/dev/null && nvidia-smi &>/dev/null; then
     esac
 
     echo "Detected GPU: $GPU_NAME (CUDA Compute Capability: $CAP)"
-    export CUDA_COMPUTE_CAP=$CAP
-    USE_CUDA=1
+    if [ "${CAP:-0}" -ge 80 ]; then
+        export CUDA_COMPUTE_CAP=$CAP
+        USE_CUDA=1
+    else
+        echo "Note: candle-kernels 0.9.2 bf16 WMMA requires sm_80+ (Ampere/L4/A100). Falling back to CPU build on $GPU_NAME (sm_$CAP)..."
+        USE_CUDA=0
+    fi
 else
     echo "No NVIDIA GPU detected. Proceeding with CPU acceleration..."
 fi
