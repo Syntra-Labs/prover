@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# Google Colab Stage 2 Dialogue-Train Launcher (Response-Masked SFT)
+# ==============================================================================
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+GS_BIN="$REPO_ROOT/vendor/uor-r4/target/release/examples/geometric-stack"
+DATA_DIR="$REPO_ROOT/data/mathlib4"
+
+# 1. Prepare .uort files and manifests if missing
+python3 "$REPO_ROOT/scripts/prepare_dialogue_uort.py" "$DATA_DIR"
+
+# 2. Stage 1 Init Model
+INIT_MODEL="${INIT_MODEL:-$REPO_ROOT/reports/r4_colab_run_20261017_053354/model}"
+
+# 3. Output directory
+OUT_DIR="$REPO_ROOT/reports/r4_stage2_dialogue_$(date +%Y%m%d_%H%M%S)"
+mkdir -p "$(dirname "$OUT_DIR")"
+
+echo "=========================================================="
+echo " Starting UOR-R4 Stage 2 (Response-Masked Dialogue SFT)"
+echo " Initialized from: $INIT_MODEL"
+echo " Output:           $OUT_DIR"
+echo "=========================================================="
+
+"$GS_BIN" dialogue-train \
+    out="$OUT_DIR" \
+    tokenizer="$DATA_DIR/tokenizer.json" \
+    train_tokens="$DATA_DIR/train.uort" \
+    train_mask="$DATA_DIR/train.mask" \
+    train_manifest="$DATA_DIR/train_manifest.json" \
+    dev_tokens="$DATA_DIR/valid.uort" \
+    dev_mask="$DATA_DIR/valid.mask" \
+    dev_manifest="$DATA_DIR/valid_manifest.json" \
+    init="$INIT_MODEL" \
+    steps="${STEPS:-1000}" \
+    batch="${BATCH:-8}" \
+    lr="${LR:-0.001}" \
+    warmup=100 \
+    min_lr=0.0001 \
+    eval_every=200 \
+    checkpoint_every=200 \
+    context=256
+
+echo "==> Stage 2 Dialogue training finished successfully. Artifacts saved in: $OUT_DIR"
