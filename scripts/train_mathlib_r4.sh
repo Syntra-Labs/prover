@@ -62,7 +62,6 @@ echo "=========================================================="
     context="$CONTEXT" \
     read=l2 \
     rotation=true \
-    key_shift=false \
     steps="$STEPS" \
     batch="$BATCH" \
     lr="$LR" \

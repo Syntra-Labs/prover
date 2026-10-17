@@ -122,7 +122,6 @@ ARGS=(
     context="$CONTEXT"
     read="$READ_METRIC"
     rotation=true
-    key_shift=false
     steps="$STEPS"
     batch="$BATCH"
     lr="$LR"
