@@ -154,3 +154,8 @@ Every commit to the repository must satisfy:
 6. `./vendor/prismpm/target/debug/prismpm --project specs check`: Holographic native library conformance and acceptance root validation.
 7. Pre-push gate: Rejection of direct pushes to `leanDojo` or `prover`, requiring audited pull requests.
 8. GitHub Actions CI: `.github/workflows/ci.yml` runs reviewability audits (task DAG and diff limits), LexLean kernel verification, PrismPM acceptance conformance, and pytest falsification tests on all PRs targeting `leanDojo`.
+
+---
+
+## 6. Architecture Decision Records
+- **[ADR-0004](file:///home/yassine/code/syn-prover/docs/ADR-0004-intermediate-representation-and-geodesic-routing.md)**: Intermediate Representation (IR) State-Action Conditioning and Geodesic Routing.
