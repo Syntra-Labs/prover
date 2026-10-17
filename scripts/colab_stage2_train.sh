@@ -19,28 +19,25 @@ OUT_DIR="$REPO_ROOT/reports/r4_stage2_dialogue_$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$(dirname "$OUT_DIR")"
 
 echo "=========================================================="
-echo " Starting UOR-R4 Stage 2 (Response-Masked Dialogue SFT)"
+echo " Starting UOR-R4 Stage 2 Fine-Tuning on Goal->Tactic Pairs"
 echo " Initialized from: $INIT_MODEL"
 echo " Output:           $OUT_DIR"
 echo "=========================================================="
 
-"$GS_BIN" dialogue-train \
-    out="$OUT_DIR" \
-    tokenizer="$DATA_DIR/tokenizer.json" \
-    train_tokens="$DATA_DIR/train.uort" \
-    train_mask="$DATA_DIR/train.mask" \
-    train_manifest="$DATA_DIR/train_manifest.json" \
-    dev_tokens="$DATA_DIR/valid.uort" \
-    dev_mask="$DATA_DIR/valid.mask" \
-    dev_manifest="$DATA_DIR/valid_manifest.json" \
+"$GS_BIN" train \
     init="$INIT_MODEL" \
+    train="$DATA_DIR/train.u16" \
+    valid="$DATA_DIR/valid.u16" \
+    tokenizer="$DATA_DIR/tokenizer.json" \
+    out="$OUT_DIR" \
     steps="${STEPS:-1000}" \
     batch="${BATCH:-8}" \
     lr="${LR:-0.001}" \
     warmup=100 \
-    min_lr=0.0001 \
+    min_lr=0.1 \
+    weight_decay=0.1 \
     eval_every=200 \
     checkpoint_every=200 \
     context=256
 
-echo "==> Stage 2 Dialogue training finished successfully. Artifacts saved in: $OUT_DIR"
+echo "==> Stage 2 Fine-tuning finished successfully. Artifacts saved in: $OUT_DIR"
