@@ -1,0 +1,5 @@
+timestamp,stage,run_id,step,benchmark_type,sample_size,top1_accuracy,top5_recall,certified_qed_rate,loss_or_nll,notes
+2026-10-17T05:50:00+00:00,Stage 1 Pretrain,r4_colab_run_20261017_053354,1000,pretrain_validation,808192,,,,2.0848,Unsupervised next-token pretraining on raw Mathlib tokens (dev NLL across 808k tokens)
+2026-10-17T06:20:00+00:00,Stage 1 Pretrain,r4_colab_run_20261017_053354,1000,authentic_lean4_compiler,5,0.8000,0.8000,0.8000,,4/5 theorems certified by Lean 4.35.0 release compiler; my_and_comm failed
+2026-10-17T06:30:00+00:00,Stage 1 Pretrain,r4_colab_run_20261017_053354,1000,mathlib4_validation_holdout,20,0.0000,0.6000,,,12/20 tactics matched in Top-5; Top-1 monopolized by global closing priors
+2026-10-17T06:35:00+00:00,Stage 1 Pretrain,r4_colab_run_20261017_053354,1000,geometric_falsification_suite,13,,,,1.0000,13/13 invariant tests passed across Tier A/B/C (alpha-equivalence=0.981; jitter=1.00)
