@@ -6,7 +6,7 @@
 # Description: Connect R4 S3/Hopf and E8 lattice discrete quantization to Lean tactic emission.
 # Criterion: review: "End-to-end forward pass maps Lean goal to discrete tactic via E8 Voronoi snapping on Cloud A100"
 
-# TODO(macro-decider | tier:C | depends_on:[policy-r4, search-action, search-dead-tactic, param-tactic-synthesis]):
+# TODO(macro-decider | tier:C | depends_on:[policy-r4, search-action, search-dead-tactic]):
 # Description: Implement Tier 1 Macro-Action Decider gating terminating procedures vs forward lemma invention.
 # Criterion: review: "Decider routes proof search between Tier 2A direct tactics and Tier 2B forward invention with kernel feedback"
 

@@ -47,6 +47,10 @@ class GeodesicSearchResult:
     repl_calls_saved: int
     depth_reached: int
 
+from src.ir.canonicalizer import canonicalize
+from src.ir.tactic_ast import ASTNode, NodeSort, lower_ast_to_lean, valid_ast_candidates
+
+
 class SpeculativeGeodesicRouter:
     """
     Continuous geodesic router that projects continuous tangent trajectories
@@ -56,9 +60,6 @@ class SpeculativeGeodesicRouter:
         self.margin_threshold = margin_threshold
         self.max_beam_width = max_beam_width
 
-    # FIXME(param-tactic-synthesis | tier:B | blocks:[macro-decider]):
-    # Description: Factorize tactic emission into (1) geodesic macro-tactic head routing and (2) contextual argument/premise generation without ground-truth candidate pool leakage.
-    # Criterion: assert: zero_ground_truth_candidate_injection and emits_full_parameterized_tactics
     def rank_candidates(
         self,
         tangent_vector: np.ndarray,
@@ -104,6 +105,64 @@ class SpeculativeGeodesicRouter:
             return [ranked[0]], margin, False
         else:
             return [ranked[0], ranked[1]], margin, True
+
+    def synthesize_ast_tactics(
+        self,
+        goal_str: str,
+        slot_geometry_fn: Callable[[str, Tuple[str, ...], List[ASTNode]], Tuple[np.ndarray, Dict[str, np.ndarray]]],
+        premises: Optional[List[str]] = None,
+        max_ast_nodes: int = 6,
+    ) -> List[Tuple[str, List[ASTNode], float]]:
+        """
+        Synthesizes full parameterized Lean 4 tactics by applying geodesic margin routing
+        at each pre-order IR AST node transition (`NodeSort.OP`, `DIR`, `TERM`, `HYP`, `VAR`, `LOC`),
+        strictly constrained by the goal's LocalContext symbol table `sigma` and inverting `sigma^-1`
+        upon completion.
+        """
+        canon_goal, _, sigma = canonicalize(goal_str)
+        # Each beam entry: (emitted_nodes, remaining_open_sorts, cumulative_score)
+        beam: List[Tuple[List[ASTNode], List[NodeSort], float]] = [([], [NodeSort.OP], 0.0)]
+        completed: List[Tuple[str, List[ASTNode], float]] = []
+
+        while beam:
+            next_beam: List[Tuple[List[ASTNode], List[NodeSort], float]] = []
+            for emitted, open_sorts, score in beam:
+                if not open_sorts:
+                    surface_tactic = lower_ast_to_lean(emitted, sigma)
+                    completed.append((surface_tactic, emitted, score))
+                    continue
+
+                req_sort = open_sorts[0]
+                rest_sorts = open_sorts[1:]
+                allow_comb = (len(emitted) + len(rest_sorts) + 2) <= max_ast_nodes
+                valid_nodes = valid_ast_candidates(
+                    req_sort, sigma, premises=premises, allow_combinators=allow_comb
+                )
+                node_map = {n.token: n for n in valid_nodes}
+
+                if len(valid_nodes) == 1:
+                    chosen = valid_nodes[0]
+                    next_beam.append(([*emitted, chosen], [*chosen.child_sorts, *rest_sorts], score))
+                    continue
+
+                prefix_tokens = tuple(n.token for n in emitted)
+                tangent_v, action_dict = slot_geometry_fn(canon_goal, prefix_tokens, valid_nodes)
+                # Filter action_dict strictly to grammar-valid in-scope AST nodes
+                constrained_dict = {tok: action_dict[tok] for tok in node_map if tok in action_dict}
+                ranked = self.rank_candidates(tangent_v, constrained_dict)
+                queue, _, _ = self.select_speculative_queue(ranked)
+
+                for cand in queue:
+                    chosen = node_map[cand.name]
+                    next_beam.append(
+                        ([*emitted, chosen], [*chosen.child_sorts, *rest_sorts], score + cand.score)
+                    )
+
+            next_beam.sort(key=lambda item: item[2], reverse=True)
+            beam = next_beam[: self.max_beam_width]
+
+        completed.sort(key=lambda item: item[2], reverse=True)
+        return completed[: self.max_beam_width]
 
 class SpeculativeGeodesicProver:
     """

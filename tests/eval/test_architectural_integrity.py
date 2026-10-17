@@ -125,9 +125,14 @@ def test_anti_tautology_falsification_gate():
 
 def test_ir_bijection_and_param_tactic_dag_gates():
     """
-    Permanent Gate 5 (Resolves `ir-alpha-bijection` via Option 1A; tracks `param-tactic-synthesis`):
-    Verifies declaration-order alpha-canonicalization is strictly bijective and invariant under renaming.
+    Permanent Gate 5 (Resolves `ir-alpha-bijection` via Option 1A and `param-tactic-synthesis` via Prefix IR AST):
+    1. Verifies declaration-order alpha-canonicalization is strictly bijective and invariant under renaming.
+    2. Verifies SpeculativeGeodesicRouter.synthesize_ast_tactics emits full parameterized surface Lean 4 tactics
+       (e.g. `rw [← hy] at hx`, `exact ⟨h_and.right, h_and.left⟩`) and strictly blocks out-of-scope hypotheses.
     """
+    import numpy as np
+    from src.search.geodesic_search import SpeculativeGeodesicRouter
+
     g1 = "m n : Nat\nh1 : m + n = n + m\nh2 : n = 0\n⊢ m + 0 = m"
     g2 = "a b : Nat\nhx : a + b = b + a\nhy : b = 0\n⊢ a + 0 = a"
     tac1 = "rw [h2] at h1; exact h1"
@@ -141,6 +146,24 @@ def test_ir_bijection_and_param_tactic_dag_gates():
     assert invert_sigma(ct1, sig1) == tac1
     assert invert_sigma(ct2, sig2) == tac2
 
-    tasks = _active_tasks_by_id()
-    assert "param-tactic-synthesis" in tasks, "Missing `param-tactic-synthesis` task in DAG"
-    assert "macro-decider" in tasks["param-tactic-synthesis"]["blocks"]
+    # Test Prefix IR AST Geodesic Synthesis (`param-tactic-synthesis`)
+    router = SpeculativeGeodesicRouter(margin_threshold=0.05, max_beam_width=2)
+    target_ast_path = ["OP:rw", "DIR:symm", "HYP:h1", "HYP:h0"]
+
+    def slot_geometry_fn(canon_goal, prefix_tokens, valid_nodes):
+        # Verify out-of-scope hypotheses (e.g. HYP:h9) are never in valid_nodes
+        valid_tokens = {n.token for n in valid_nodes}
+        assert "HYP:h9" not in valid_tokens
+        step_idx = len(prefix_tokens)
+        desired = target_ast_path[step_idx]
+        tangent = np.array([1.0, 0.0, 0.0, 0.0], dtype=np.float32)
+        action_dict = {
+            n.token: (np.array([1.0, 0.0, 0.0, 0.0], dtype=np.float32) if n.token == desired else np.array([0.0, 1.0, 0.0, 0.0], dtype=np.float32))
+            for n in valid_nodes
+        }
+        return tangent, action_dict
+
+    synthesized = router.synthesize_ast_tactics(g2, slot_geometry_fn)
+    assert synthesized[0][0] == "rw [← hy] at hx", (
+        f"param-tactic-synthesis violation: expected 'rw [← hy] at hx', got {synthesized[0][0]!r}"
+    )
