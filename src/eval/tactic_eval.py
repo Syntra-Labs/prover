@@ -47,6 +47,9 @@ class TacticEvaluator:
         else:
             target_ids = full_ids[prompt_len:]
             
+        # FIXME(r4-weight-parity | tier:A | blocks:[stab-alpha, stab-jitter, policy-r4, search-action, search-dead-tactic]):
+        # Description: Execute all 78 learned tensors in model.safetensors (rec, read, mlp) or call Rust geometric-stack instead of hardcoded 0.95 moving average.
+        # Criterion: assert: consumed_tensors == total_safetensors_keys and rust_pytorch_max_abs_diff < 1e-5
         # Forward pass through R4
         seq_len = len(full_ids)
         x = self.embed_weight[full_ids]

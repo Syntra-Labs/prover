@@ -1,5 +1,7 @@
 timestamp,stage,run_id,step,benchmark_type,sample_size,top1_accuracy,top5_recall,certified_qed_rate,loss_or_nll,notes
-2026-10-17T05:50:00+00:00,Stage 1 Pretrain,r4_colab_run_20261017_053354,1000,pretrain_validation,808192,,,,2.0848,Unsupervised next-token pretraining on raw Mathlib tokens (dev NLL across 808k tokens)
-2026-10-17T06:20:00+00:00,Stage 1 Pretrain,r4_colab_run_20261017_053354,1000,authentic_lean4_compiler,5,0.8000,0.8000,0.8000,,4/5 theorems certified by Lean 4.35.0 release compiler; my_and_comm failed
-2026-10-17T06:30:00+00:00,Stage 1 Pretrain,r4_colab_run_20261017_053354,1000,mathlib4_validation_holdout,20,0.0000,0.6000,,,12/20 tactics matched in Top-5; Top-1 monopolized by global closing priors
-2026-10-17T06:35:00+00:00,Stage 1 Pretrain,r4_colab_run_20261017_053354,1000,geometric_falsification_suite,13,,,,1.0000,13/13 invariant tests passed across Tier A/B/C (alpha-equivalence=0.981; jitter=1.00)
+2026-10-17T05:50:00+00:00,Stage 1 Pretrain,r4_colab_run_20261017_053354,1000,pretrain_validation,808192,,,,2.0848,Authentic Rust geometric-stack evaluate on raw Mathlib tokens (dev NLL across 808k tokens)
+2026-10-17T06:20:00+00:00,Stage 1 Pretrain (Pre-Audit Eval),r4_colab_run_20261017_053354,1000,authentic_lean4_compiler,5,0.8000,0.8000,0.8000,,4/5 theorems certified by Lean 4.35.0 via omega; INVALIDATED by r4-weight-parity (Python evaluator only used 2/78 tensors)
+2026-10-17T06:30:00+00:00,Stage 1 Pretrain (Pre-Audit Eval),r4_colab_run_20261017_053354,1000,mathlib4_validation_holdout,20,0.0000,0.6000,,,INVALIDATED by r4-weight-parity and ground-truth candidate head leakage (+ [t_head])
+2026-10-17T06:35:00+00:00,Stage 1 Pretrain (Pre-Audit Eval),r4_colab_run_20261017_053354,1000,geometric_falsification_suite,13,,,,1.0000,INVALIDATED by anti-tautology-falsification (test-side re.sub scrubbing and synthetic randn vectors)
+2026-10-17T06:55:03+00:00,Stage 2 Unmasked Cont. (Invalidated),r4_stage2_dialogue_20261017_064859,200,sft_validation,16384,,,,2.1240,"Step 200 (unmasked train fallback, disregarded train.mask): train_loss=2.0951, dev_nll=2.1240"
+2026-10-17T07:01:09+00:00,Stage 2 Unmasked Cont. (Invalidated),r4_stage2_dialogue_20261017_064859,400,sft_validation,16384,,,,2.0072,"Step 400 (unmasked train fallback, disregarded train.mask): train_loss=1.9953, dev_nll=2.0072"

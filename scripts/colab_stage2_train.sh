@@ -24,12 +24,16 @@ echo " Initialized from: $INIT_MODEL"
 echo " Output:           $OUT_DIR"
 echo "=========================================================="
 
-"$GS_BIN" train \
-    init="$INIT_MODEL" \
-    train="$DATA_DIR/train.u16" \
-    valid="$DATA_DIR/valid.u16" \
-    tokenizer="$DATA_DIR/tokenizer.json" \
+"$GS_BIN" dialogue-train \
     out="$OUT_DIR" \
+    tokenizer="$DATA_DIR/tokenizer.json" \
+    train_tokens="$DATA_DIR/train.uort" \
+    train_mask="$DATA_DIR/train.mask" \
+    train_manifest="$DATA_DIR/train_manifest.json" \
+    dev_tokens="$DATA_DIR/valid.uort" \
+    dev_mask="$DATA_DIR/valid.mask" \
+    dev_manifest="$DATA_DIR/valid_manifest.json" \
+    init="$INIT_MODEL" \
     steps="${STEPS:-1000}" \
     batch="${BATCH:-8}" \
     lr="${LR:-0.001}" \

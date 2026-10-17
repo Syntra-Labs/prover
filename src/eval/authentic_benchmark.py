@@ -1,4 +1,4 @@
-# TODO(policy-r4 | tier:B | depends_on:[stab-alpha, stab-jitter] | blocks:[macro-decider]):
+# TODO(policy-r4 | tier:B | depends_on:[stab-alpha, stab-jitter, r4-weight-parity, stage2-response-mask, ir-alpha-bijection] | blocks:[macro-decider]):
 # Description: Train linear/MLP classification head over R4 1024-dim hidden states mapping to 50 discrete tactics.
 # Criterion: assert: top1_accuracy >= 0.30 and top5_accuracy >= 0.65 on Mathlib 4 validation holdout
 
@@ -6,7 +6,7 @@
 # Description: Connect R4 S3/Hopf and E8 lattice discrete quantization to Lean tactic emission.
 # Criterion: review: "End-to-end forward pass maps Lean goal to discrete tactic via E8 Voronoi snapping on Cloud A100"
 
-# TODO(macro-decider | tier:C | depends_on:[policy-r4, search-action, search-dead-tactic]):
+# TODO(macro-decider | tier:C | depends_on:[policy-r4, search-action, search-dead-tactic, param-tactic-synthesis]):
 # Description: Implement Tier 1 Macro-Action Decider gating terminating procedures vs forward lemma invention.
 # Criterion: review: "Decider routes proof search between Tier 2A direct tactics and Tier 2B forward invention with kernel feedback"
 
@@ -84,9 +84,9 @@ def run_authentic_benchmark(num_steps: int = 20):
         print(f"\n[Step {idx+1}/{len(steps)}] {thm}")
         print(f"  Target: '{tactic}' -> Discrete Tactic ID: {t_id} ({t_head})")
 
-        # Evaluate candidate pool
+        # Evaluate candidate pool (strictly fixed pool; zero ground-truth leakage)
         prompt = f"Goal:\n{state}\n\nTactic:\n"
-        eval_candidates = list(set(CANONICAL_TACTIC_POOL + [t_head]))
+        eval_candidates = list(CANONICAL_TACTIC_POOL)
         scores = []
         for cand in eval_candidates:
             res = evaluator.evaluate_tactic_likelihood(prompt, cand)
