@@ -78,10 +78,17 @@ def run_authentic_proving():
         print(f"\nTarget: {thm['name']} ({thm['id']})")
         print(f"Goal:   {thm['lean_code']}")
 
-        # 1. Have R4 evaluate candidate tactics from the pool
+        # 1. Filter candidate tactics by LocalContext scope (Prefix IR AST constraint) and score with R4
+        from src.ir.canonicalizer import canonicalize
+        _, _, sigma = canonicalize(thm["lean_code"])
+        has_hyp = any(v.startswith("h") for v in sigma.values())
+        has_conj = "∧" in thm["lean_code"]
         tactic_scores = []
         for tac in CANONICAL_TACTIC_POOL:
-            # Evaluate model loss on prompt + tactic
+            if not has_hyp and ("h" in tac.split() or "h." in tac):
+                continue
+            if "⟨" in tac and not has_conj:
+                continue
             res = evaluator.evaluate_tactic_likelihood(thm["lean_code"], tac)
             tactic_scores.append((tac, res["cross_entropy_loss"]))
 

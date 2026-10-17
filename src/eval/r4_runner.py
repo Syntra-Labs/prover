@@ -151,6 +151,8 @@ class R4PyTorchModel:
         return F.linear(mixed, self._get(f"{p}.mlp.down.weight"))
 
     def forward_hidden_and_logits(self, input_ids: torch.Tensor):
+        if len(input_ids) > self.context:
+            input_ids = input_ids[-self.context:]
         embed_weight = self._get("embedding.weight")
         x = embed_weight[input_ids]
         layer_diagnostics = []

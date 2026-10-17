@@ -37,9 +37,25 @@ class TacticEvaluator:
         with torch.no_grad():
             self.r4.forward_hidden_and_logits(ids)
         return self.r4.last_recurrence_state
+
+    def rank_tactic_heads(self, prompt: str, heads: list[str]) -> list[tuple[str, float]]:
+        ids = torch.tensor(self.tokenizer.encode(prompt).ids[-self.r4.context:], dtype=torch.long, device=self.device)
+        with torch.no_grad():
+            _, logits, _ = self.r4.forward_hidden_and_logits(ids)
+        lp = F.log_softmax(logits[-1], dim=-1)
+        seen_tids = set()
+        scores = []
+        for h in heads:
+            h_ids = self.tokenizer.encode(h).ids
+            if len(h_ids) == 1 and h_ids[0] not in seen_tids:
+                seen_tids.add(h_ids[0])
+                scores.append((h, -lp[h_ids[0]].item()))
+        scores.sort(key=lambda x: x[1])
+        return scores
         
     def evaluate_tactic_likelihood(self, prompt: str, target_tactic: str):
-        full_text = prompt + " " + target_tactic
+        sep = "" if prompt.endswith(("\n", " ")) else " "
+        full_text = prompt + sep + target_tactic
         enc_full = self.tokenizer.encode(full_text)
         enc_prompt = self.tokenizer.encode(prompt)
         

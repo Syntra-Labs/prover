@@ -84,14 +84,10 @@ def run_authentic_benchmark(num_steps: int = 20):
         print(f"\n[Step {idx+1}/{len(steps)}] {thm}")
         print(f"  Target: '{tactic}' -> Discrete Tactic ID: {t_id} ({t_head})")
 
-        # Evaluate candidate pool (strictly fixed pool; zero ground-truth leakage)
+        # Evaluate canonical tactic heads (strictly fixed pool; zero ground-truth leakage)
         prompt = f"Goal:\n{state}\n\nTactic:\n"
-        eval_candidates = list(CANONICAL_TACTIC_POOL)
-        scores = []
-        for cand in eval_candidates:
-            res = evaluator.evaluate_tactic_likelihood(prompt, cand)
-            scores.append((cand, res["cross_entropy_loss"]))
-        scores.sort(key=lambda x: x[1])
+        eval_candidates = [k for k in TACTIC_MAP.keys() if k != "unknown"]
+        scores = evaluator.rank_tactic_heads(prompt, eval_candidates)
 
         ranked_heads = [s[0] for s in scores]
         is_top1 = (ranked_heads[0] == t_head)
