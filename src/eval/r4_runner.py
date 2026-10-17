@@ -16,8 +16,12 @@ from pathlib import Path
 from tokenizers import Tokenizer
 from safetensors import safe_open
 
-from lean_bench import BENCHMARK_THEOREMS
-from metrics_collector import GeometricMetricsCollector
+try:
+    from lean_bench import BENCHMARK_THEOREMS
+    from metrics_collector import GeometricMetricsCollector
+except ImportError:
+    from src.eval.lean_bench import BENCHMARK_THEOREMS
+    from src.eval.metrics_collector import GeometricMetricsCollector
 
 class QuaternionOps:
     @staticmethod

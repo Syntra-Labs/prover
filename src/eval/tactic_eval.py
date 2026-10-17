@@ -14,9 +14,14 @@ from pathlib import Path
 from tokenizers import Tokenizer
 from safetensors import safe_open
 
-from lean_bench import BENCHMARK_THEOREMS
-from metrics_collector import GeometricMetricsCollector
-from r4_runner import R4PyTorchModel
+try:
+    from lean_bench import BENCHMARK_THEOREMS
+    from metrics_collector import GeometricMetricsCollector
+    from r4_runner import R4PyTorchModel
+except ImportError:
+    from src.eval.lean_bench import BENCHMARK_THEOREMS
+    from src.eval.metrics_collector import GeometricMetricsCollector
+    from src.eval.r4_runner import R4PyTorchModel
 
 class TacticEvaluator:
     def __init__(self, r4_model_path: str, device: str = "cuda:0"):

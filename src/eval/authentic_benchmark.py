@@ -61,14 +61,17 @@ def run_authentic_benchmark(num_steps: int = 20):
     print(f"[DATA] Prepared {len(steps)} authentic proof steps from Mathlib 4.\n")
 
     # 2. Initialize Authentic R4 Model
-    r4_bin = ROOT_DIR / "vendor/uor-r4/target/release/r4-inspect"
-    if not r4_bin.exists():
-        r4_bin = Path("/content/prover/vendor/uor-r4/target/release/r4-inspect")
-    r4_model_dir = Path("/content/prover/checkpoints/caseyallard/uor-r4-geometric-214m/chat-smoltalk-b16/model")
-    r4_tok_path = Path("/content/prover/checkpoints/caseyallard/uor-r4-geometric-214m/tokenizer.json")
-    r4_tokenizer = Tokenizer.from_file(str(r4_tok_path))
+    from r4_runner import find_latest_checkpoint
+    from tactic_eval import TacticEvaluator
+    from authentic_lean_prover import CANONICAL_TACTIC_POOL
+
+    ckpt_path = find_latest_checkpoint()
+    print(f"[MODEL] Loading R4 checkpoint: {ckpt_path}")
+    evaluator = TacticEvaluator(ckpt_path, device="cpu")
 
     results = []
+    top1_correct = 0
+    top5_correct = 0
 
     print("-" * 70)
     for idx, step in enumerate(steps):
@@ -81,22 +84,23 @@ def run_authentic_benchmark(num_steps: int = 20):
         print(f"\n[Step {idx+1}/{len(steps)}] {thm}")
         print(f"  Target: '{tactic}' -> Discrete Tactic ID: {t_id} ({t_head})")
 
-        # --- Authentic R4 Forward Pass ---
-        # Encode state with BPE tokenizer
-        enc = r4_tokenizer.encode(state)
-        ids_str = ",".join(str(i) for i in enc.ids[:128]) # pass up to context budget
-        r4_proc = subprocess.run([str(r4_bin), str(r4_model_dir), ids_str], capture_output=True, text=True)
-        
-        r4_data = {}
-        if r4_proc.returncode == 0 and r4_proc.stdout.strip():
-            try:
-                r4_data = json.loads(r4_proc.stdout.strip())
-                top_tokens = [t["id"] for t in r4_data.get("top_5", [])]
-                print(f"  [R4]  Tokens: {r4_data.get('tokens_fed')} | Hidden Norm: {r4_data.get('final_hidden_norm'):.2f} | Top-5 Token IDs: {top_tokens}")
-            except Exception as e:
-                print(f"  [R4]  JSON parse error: {e}")
-        else:
-            print(f"  [R4]  Process stderr: {r4_proc.stderr[:100]}")
+        # Evaluate candidate pool
+        prompt = f"Goal:\n{state}\n\nTactic:\n"
+        eval_candidates = list(set(CANONICAL_TACTIC_POOL + [t_head]))
+        scores = []
+        for cand in eval_candidates:
+            res = evaluator.evaluate_tactic_likelihood(prompt, cand)
+            scores.append((cand, res["cross_entropy_loss"]))
+        scores.sort(key=lambda x: x[1])
+
+        ranked_heads = [s[0] for s in scores]
+        is_top1 = (ranked_heads[0] == t_head)
+        is_top5 = (t_head in ranked_heads[:5])
+        if is_top1: top1_correct += 1
+        if is_top5: top5_correct += 1
+
+        print(f"  Ranked Candidates: Top-1='{ranked_heads[0]}' | Top-5={ranked_heads[:5]}")
+        print(f"  Match: Top-1={is_top1} | Top-5={is_top5}")
 
         results.append({
             "step": idx,
@@ -104,10 +108,10 @@ def run_authentic_benchmark(num_steps: int = 20):
             "tactic": tactic,
             "tactic_id": t_id,
             "tactic_head": t_head,
-            "r4": {
-                "hidden_norm": r4_data.get("final_hidden_norm"),
-                "top_5": r4_data.get("top_5", [])
-            }
+            "top_1_prediction": ranked_heads[0],
+            "top_5_predictions": ranked_heads[:5],
+            "top_1_correct": is_top1,
+            "top_5_correct": is_top5
         })
 
     # Save authentic run log
@@ -118,6 +122,8 @@ def run_authentic_benchmark(num_steps: int = 20):
 
     print("\n" + "=" * 70)
     print(f"[COMPLETE] Authentic evaluation finished. Results saved to: {log_file}")
+    print(f"Top-1 Accuracy: {top1_correct}/{len(steps)} ({top1_correct/len(steps)*100:.1f}%)")
+    print(f"Top-5 Accuracy: {top5_correct}/{len(steps)} ({top5_correct/len(steps)*100:.1f}%)")
     print("=" * 70)
 
 if __name__ == "__main__":
