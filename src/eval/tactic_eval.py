@@ -104,6 +104,7 @@ def find_latest_checkpoint():
     import os
     candidates = []
     candidates.extend(glob.glob("/content/drive/MyDrive/r4_checkpoints/*"))
+    candidates.extend(glob.glob("/content/syn-prover/reports/r4_*"))
     candidates.extend(glob.glob("reports/r4_*"))
     valid = [c for c in candidates if (Path(c) / "model/model.safetensors").exists() or (Path(c) / "model.safetensors").exists()]
     if valid:

@@ -50,7 +50,17 @@ class R4PyTorchModel:
         self.context = self.cfg["context"] # 384
         
         # Load tokenizer
-        self.tokenizer = Tokenizer.from_file(str(self.ckpt_dir.parent / "tokenizer.json"))
+        tok_candidates = [
+            self.ckpt_dir / "tokenizer.json",
+            self.ckpt_dir.parent / "tokenizer.json",
+            self.ckpt_dir.parent.parent / "data/mathlib4/tokenizer.json",
+            Path("/content/syn-prover/data/mathlib4/tokenizer.json"),
+            Path("data/mathlib4/tokenizer.json"),
+        ]
+        tok_path = next((p for p in tok_candidates if p.exists()), None)
+        if tok_path is None:
+            raise FileNotFoundError(f"Could not find tokenizer.json in candidates: {tok_candidates}")
+        self.tokenizer = Tokenizer.from_file(str(tok_path))
         
         # Load weights
         self.tensors = {}
@@ -136,6 +146,7 @@ def find_latest_checkpoint():
     import glob
     candidates = []
     candidates.extend(glob.glob("/content/drive/MyDrive/r4_checkpoints/*"))
+    candidates.extend(glob.glob("/content/syn-prover/reports/r4_*"))
     candidates.extend(glob.glob("reports/r4_*"))
     valid = [c for c in candidates if (Path(c) / "model/model.safetensors").exists() or (Path(c) / "model.safetensors").exists()]
     if valid:
