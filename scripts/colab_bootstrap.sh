@@ -47,8 +47,14 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 UOR_R4_DIR="$REPO_ROOT/vendor/uor-r4"
 
 if [ ! -d "$UOR_R4_DIR" ]; then
-    echo "ERROR: Could not find vendor/uor-r4 at $UOR_R4_DIR"
-    exit 1
+    echo "Cloning vendor/uor-r4 from https://github.com/UOR-Foundation/uor-r4..."
+    mkdir -p "$(dirname "$UOR_R4_DIR")"
+    git clone https://github.com/UOR-Foundation/uor-r4 "$UOR_R4_DIR"
+fi
+
+if [ ! -d "$REPO_ROOT/vendor/LeanDojo-v2" ] && [ ! -d "$REPO_ROOT/vendor/leandojo" ]; then
+    echo "Cloning LeanDojo-v2 from https://github.com/lean-dojo/LeanDojo-v2.git..."
+    git clone https://github.com/lean-dojo/LeanDojo-v2.git "$REPO_ROOT/vendor/LeanDojo-v2"
 fi
 
 cd "$UOR_R4_DIR"
