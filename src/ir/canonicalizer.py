@@ -107,8 +107,18 @@ def canonicalize(goal_str: str, tactic_str: str = "") -> Tuple[str, str, Dict[st
 
 def invert_sigma(canon_tactic: str, sigma: Dict[str, str]) -> str:
     """
-    Inverts the canonical symbol table `sigma` on a predicted canonical tactic,
-    restoring the exact surface variable and hypothesis names expected by Lean 4.
+    Inverts the canonical symbol table `sigma` on a predicted canonical tactic
+    using Lean 4's native `Lean.Syntax` parser and `Syntax.reprint` (falling back
+    to token mapping only on unparseable fragments).
     """
     inv_map = {canon: surf for surf, canon in sigma.items()}
+    if not inv_map or not canon_tactic:
+        return canon_tactic
+    try:
+        from src.ir.tactic_ast import LeanASTBridge
+        res = LeanASTBridge.parse_tactic(canon_tactic, inv_map)
+        if res.get("ok") and res.get("root_kind"):
+            return res["canonical_tactic"]
+    except Exception:
+        pass
     return _apply_token_map(canon_tactic, inv_map)

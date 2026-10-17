@@ -55,6 +55,13 @@ def test_stage2_response_mask_never_disregarded():
         "Regression in stage2-response-mask: geometric-stack.rs must wire `train_mask` to `model.weighted_loss`."
     )
 
+    # Verify both Colab launchers auto-persist checkpoints & benchmark_history.csv to GitHub/HF/GDrive
+    for launcher in ("scripts/colab_train.sh", "scripts/colab_stage2_train.sh"):
+        l_src = (REPO_ROOT / launcher).read_text(encoding="utf-8")
+        assert "persist_checkpoint_cloud.sh" in l_src, (
+            f"Regression: {launcher} must invoke `persist_checkpoint_cloud.sh` for unattended cloud persistence."
+        )
+
 
 def test_zero_ground_truth_candidate_leakage():
     """
@@ -125,12 +132,14 @@ def test_anti_tautology_falsification_gate():
 
 def test_ir_bijection_and_param_tactic_dag_gates():
     """
-    Permanent Gate 5 (Resolves `ir-alpha-bijection` via Option 1A and `param-tactic-synthesis` via Prefix IR AST):
+    Permanent Gate 5 (Resolves `ir-alpha-bijection` via Option 1A and `param-tactic-synthesis` via Native Lean 4 Syntax AST):
     1. Verifies declaration-order alpha-canonicalization is strictly bijective and invariant under renaming.
-    2. Verifies SpeculativeGeodesicRouter.synthesize_ast_tactics emits full parameterized surface Lean 4 tactics
-       (e.g. `rw [← hy] at hx`, `exact ⟨h_and.right, h_and.left⟩`) and strictly blocks out-of-scope hypotheses.
+    2. Verifies `LeanASTBridge` queries Lean 4's real `Lean.Parser.runParserCategory` and `Syntax.reprint`.
+    3. Verifies `SpeculativeGeodesicRouter.synthesize_ast_tactics` routes over native `Lean.Parser.Tactic.*`
+       AST node kinds and strictly blocks out-of-scope hypotheses.
     """
     import numpy as np
+    from src.ir.tactic_ast import LeanASTBridge
     from src.search.geodesic_search import SpeculativeGeodesicRouter
 
     g1 = "m n : Nat\nh1 : m + n = n + m\nh2 : n = 0\n⊢ m + 0 = m"
@@ -146,14 +155,20 @@ def test_ir_bijection_and_param_tactic_dag_gates():
     assert invert_sigma(ct1, sig1) == tac1
     assert invert_sigma(ct2, sig2) == tac2
 
-    # Test Prefix IR AST Geodesic Synthesis (`param-tactic-synthesis`)
+    # Verify real Lean 4 `Lean.Syntax` parser and reprinter via LeanASTBridge
+    parsed = LeanASTBridge.parse_tactic("rw [← hy] at hx", sig2)
+    assert parsed["ok"] is True
+    assert parsed["root_kind"] == "Lean.Parser.Tactic.rwSeq"
+    assert "NODE:Lean.Parser.Tactic.rwRule" in parsed["preorder"]
+    assert parsed["canonical_tactic"] == "rw [← h1] at h0"
+
+    # Test Native Lean 4 Syntax AST Geodesic Synthesis (`param-tactic-synthesis`)
     router = SpeculativeGeodesicRouter(margin_threshold=0.05, max_beam_width=2)
-    target_ast_path = ["OP:rw", "DIR:symm", "HYP:h1", "HYP:h0"]
+    target_ast_path = ["NODE:Lean.Parser.Tactic.rwSeq", "ATOM:←", "IDENT:h1", "IDENT:h0"]
 
     def slot_geometry_fn(canon_goal, prefix_tokens, valid_nodes):
-        # Verify out-of-scope hypotheses (e.g. HYP:h9) are never in valid_nodes
         valid_tokens = {n.token for n in valid_nodes}
-        assert "HYP:h9" not in valid_tokens
+        assert "IDENT:h9" not in valid_tokens
         step_idx = len(prefix_tokens)
         desired = target_ast_path[step_idx]
         tangent = np.array([1.0, 0.0, 0.0, 0.0], dtype=np.float32)
