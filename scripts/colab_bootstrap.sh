@@ -58,6 +58,11 @@ if [ ! -d "$REPO_ROOT/vendor/LeanDojo-v2" ] && [ ! -d "$REPO_ROOT/vendor/leandoj
 fi
 
 cd "$UOR_R4_DIR"
+git checkout bbbdd362 || true
+if [ -f "$REPO_ROOT/scripts/patches/uor_r4_train_mask.patch" ]; then
+    git apply --check "$REPO_ROOT/scripts/patches/uor_r4_train_mask.patch" 2>/dev/null && \
+        git apply "$REPO_ROOT/scripts/patches/uor_r4_train_mask.patch" || true
+fi
 if [ "$USE_CUDA" -eq 1 ]; then
     echo "Compiling with CUDA support (Compute Capability: $CAP)..."
     CARGO_INCREMENTAL=0 CUDA_COMPUTE_CAP=$CAP cargo build --release \

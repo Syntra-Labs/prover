@@ -1,0 +1,90 @@
+diff --git a/crates/uor-r4-training/examples/geometric-stack.rs b/crates/uor-r4-training/examples/geometric-stack.rs
+index 999e9eb6..1164b4b3 100644
+--- a/crates/uor-r4-training/examples/geometric-stack.rs
++++ b/crates/uor-r4-training/examples/geometric-stack.rs
+@@ -769,6 +769,7 @@ struct Settings {
+     /// probability proportional to `train_weights`, then its start uniformly.
+     train: Vec<PathBuf>,
+     train_weights: Vec<f64>,
++    train_mask: Option<PathBuf>,
+     valid: PathBuf,
+     lens: Option<PathBuf>,
+     merges: Option<PathBuf>,
+@@ -1819,6 +1820,7 @@ fn train_settings(args: &Args) -> Result<Settings> {
+     let mut settings = Settings {
+         train,
+         train_weights,
++        train_mask: args.optional("train_mask").map(PathBuf::from),
+         valid: PathBuf::from(args.required("valid")?),
+         lens: args.optional("lens").map(PathBuf::from),
+         merges: args.optional("merges").map(PathBuf::from),
+@@ -2478,11 +2480,29 @@ fn train(settings: &Settings, out: &Path) -> Result<()> {
+     // UOR_NAN_TRACE=1: before every update, stop at the first nonfinite
+     // gradient and name the variables that carry it (diagnosis only).
+     let nan_trace = std::env::var("UOR_NAN_TRACE").is_ok_and(|v| v == "1");
++    let train_mask: Option<Vec<u8>> = match &settings.train_mask {
++        None => None,
++        Some(path) => {
++            if train.len() != 1 {
++                return Err(invalid("train_mask requires a single train stream"));
++            }
++            let bytes = fs::read(path)?;
++            if bytes.len() != train[0].len() {
++                return Err(invalid(format!(
++                    "train_mask length ({}) != train token count ({})",
++                    bytes.len(),
++                    train[0].len()
++                )));
++            }
++            Some(bytes)
++        }
++    };
+     while progress.step < settings.steps {
+         let lr = learning_rate(settings, progress.step);
+         let clock = Instant::now();
+         let mut ids = Vec::with_capacity(settings.batch * time);
+         let mut targets = Vec::with_capacity(settings.batch * time);
++        let mut weights = Vec::with_capacity(settings.batch * time);
+         for _ in 0..settings.batch {
+             let mut draw = progress.rng.uniform() * weight_total;
+             let mut stream = &train[train.len() - 1];
+@@ -2496,6 +2516,18 @@ fn train(settings: &Settings, out: &Path) -> Result<()> {
+             let start = progress.rng.below(stream.len() - time - 1);
+             ids.extend_from_slice(&stream[start..start + time]);
+             targets.extend_from_slice(&stream[start + 1..start + time + 1]);
++            if let Some(mask) = &train_mask {
++                weights.extend(
++                    mask[start + 1..start + time + 1]
++                        .iter()
++                        .map(|&m| if m != 0 { 1.0f32 } else { 0.0f32 }),
++                );
++            }
++        }
++        if train_mask.is_some() && weights.iter().all(|&w| w == 0.0) {
++            if let Some(last) = weights.last_mut() {
++                *last = 1.0;
++            }
+         }
+         let softsort_tau = settings
+             .softsort_tau
+@@ -2507,7 +2539,11 @@ fn train(settings: &Settings, out: &Path) -> Result<()> {
+         let served_before = model.served_statistics()?;
+         let (value, grads) = match &replica {
+             None => {
+-                let loss = model.loss(&ids, &targets, settings.batch, time)?;
++                let loss = if train_mask.is_some() {
++                    model.weighted_loss(&ids, &targets, &weights, settings.batch, time)?
++                } else {
++                    model.loss(&ids, &targets, settings.batch, time)?
++                };
+                 (f64::from(loss.to_scalar::<f32>()?), loss.backward()?)
+             }
+             Some(replica) => {
+@@ -6719,6 +6755,7 @@ fn main() -> Result<()> {
+                 &[
+                     "train",
+                     "train_weights",
++                    "train_mask",
+                     "width",
+                     "heads",
+                     "layers",
