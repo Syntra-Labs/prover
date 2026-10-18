@@ -20,6 +20,7 @@ add_executable(prover
     src/process.cpp
     src/parseJsonl.cpp
 )
+target_link_libraries(prover tree_rotor macro_decider geodesic_search)
 
 add_library(tree_rotor
     src/tree_rotor.cpp
