@@ -46,6 +46,10 @@ public:
     static bool is_reflexive_or_terminal_head(const std::string& conclusion);
     static const std::vector<std::string>& get_tier2a_tactics();
     static const std::vector<std::string>& get_tier2b_tactics();
+    std::vector<std::pair<std::string, double>> filter_admissible_candidates(
+        const std::string& goal_state_str,
+        const std::vector<std::pair<std::string, double>>& raw_scores
+    ) const;
     double theta_conv() const { return theta_conv_; }
 
 private:

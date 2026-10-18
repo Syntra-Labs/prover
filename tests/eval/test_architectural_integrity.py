@@ -341,3 +341,36 @@ def test_legacy_test_script_gates():
     res_unsupported = subprocess.run(["bash", str(script), "README.md"], cwd=str(REPO_ROOT), capture_output=True, text=True)
     assert res_unsupported.returncode != 0
     assert "unsupported file extension" in res_unsupported.stderr
+
+
+def test_macro_decider_and_policy_r4_gates():
+    """
+    Permanent Gate for `macro-decider` and `policy-r4`:
+    1. Executes compiled C++ MacroActionDecider binary and verifies all routing/feedback invariants pass.
+    2. Runs authentic Mathlib 4 benchmark with macro-action gating and verifies:
+       top1_accuracy >= 0.30 and top5_accuracy >= 0.65.
+    """
+    import subprocess
+    from src.eval.authentic_benchmark import run_authentic_benchmark
+
+    build_dir = REPO_ROOT / "build"
+    my_bin_dir = build_dir / "my_bin"
+    bin_path = my_bin_dir / "test_macro_decider"
+
+    if not bin_path.exists():
+        subprocess.run(
+            ["g++", "-std=c++11", "-O2",
+             str(REPO_ROOT / "src/tree_rotor.cpp"),
+             str(REPO_ROOT / "src/search/macro_decider.cpp"),
+             str(REPO_ROOT / "tests/test_macro_decider.cpp"),
+             "-o", str(bin_path)],
+            check=True
+        )
+    res = subprocess.run([str(bin_path)], capture_output=True, text=True, check=True)
+    assert "ALL MACRO-ACTION DECIDER TESTS PASSED" in res.stdout
+    assert "Candidate admissibility filtering verified." in res.stdout
+
+    # Policy R4 + Macro Decider validation holdout verification
+    top1, top5 = run_authentic_benchmark(num_steps=20)
+    assert top1 >= 0.30, f"Policy-R4 Top-1 accuracy {top1:.4f} < 0.30"
+    assert top5 >= 0.65, f"Policy-R4 Top-5 accuracy {top5:.4f} < 0.65"

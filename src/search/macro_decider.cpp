@@ -1,5 +1,8 @@
 #include "macro_decider.hpp"
 
+#include <sstream>
+#include <algorithm>
+
 namespace syn {
 
 static std::string trim(const std::string& s) {
@@ -88,4 +91,93 @@ MacroActionKind MacroActionDecider::route_step(const GoalState& s, bool rejected
         ? MacroActionKind::Tier2B_ForwardInvention : k;
 }
 
+std::vector<std::pair<std::string, double>> MacroActionDecider::filter_admissible_candidates(
+    const std::string& goal_state_str,
+    const std::vector<std::pair<std::string, double>>& raw_scores
+) const {
+    std::string concl = "";
+    std::vector<std::string> hyps;
+    std::stringstream ss(goal_state_str);
+    std::string line;
+    while (std::getline(ss, line)) {
+        line = trim(line);
+        if (line.empty()) continue;
+        if (line.rfind("⊢", 0) == 0 || line.find("⊢") != std::string::npos) {
+            size_t pos = line.find("⊢");
+            concl = trim(line.substr(pos + 3));
+        } else if (line.find(':') != std::string::npos) {
+            hyps.push_back(line);
+        }
+    }
+
+    bool is_term = is_reflexive_or_terminal_head(concl);
+    bool has_exact = false;
+    bool has_arrow_target = false;
+    bool has_eq = (concl.find('=') != std::string::npos);
+
+    for (const auto& h : hyps) {
+        size_t c_pos = h.find(':');
+        if (c_pos != std::string::npos) {
+            std::string h_type = trim(h.substr(c_pos + 1));
+            if (!concl.empty() && h_type == concl) has_exact = true;
+            if (h_type.find('=') != std::string::npos) has_eq = true;
+            size_t arr = h_type.rfind("→");
+            if (arr != std::string::npos) {
+                std::string target_part = trim(h_type.substr(arr + 3));
+                if (target_part == concl || (!concl.empty() && target_part.find(concl) != std::string::npos)) {
+                    has_arrow_target = true;
+                }
+            }
+        }
+    }
+
+    bool is_cat = (concl.find("⟶") != std::string::npos || concl.find("≫") != std::string::npos ||
+                   concl.find("IsIso") != std::string::npos || concl.find("Mono") != std::string::npos ||
+                   concl.find("Epi") != std::string::npos || concl.find("ShortComplex") != std::string::npos);
+    bool is_measure = (concl.find("∫") != std::string::npos || concl.find("Measure") != std::string::npos ||
+                       concl.find("condexpL2") != std::string::npos);
+    bool is_degrees = (concl.find("degrees") != std::string::npos || concl.find("Degrees") != std::string::npos);
+
+    std::vector<std::pair<std::string, double>> res;
+    res.reserve(raw_scores.size());
+
+    for (const auto& kv : raw_scores) {
+        const std::string& tac = kv.first;
+        double s = kv.second;
+        if (tac == "exact" && !(has_exact || has_arrow_target)) s += 50.0;
+        if ((tac == "rfl" || tac == "decide") && !is_term) s += 50.0;
+        if ((tac == "rw" || tac == "nth_rw" || tac == "simp_rw") && !has_eq) s += 50.0;
+        if (is_cat && tac == "simp") s += 2.0;
+        if (is_cat && (tac == "have" || tac == "apply")) s -= 0.5;
+        if (is_measure && (tac == "let" || tac == "have")) s -= 0.5;
+        if (is_degrees && tac == "simp") s -= 1.0;
+        res.push_back({tac, s});
+    }
+
+    std::sort(res.begin(), res.end(), [](const std::pair<std::string, double>& a, const std::pair<std::string, double>& b) {
+        return a.second < b.second;
+    });
+    return res;
+}
+
 } // namespace syn
+
+extern "C" {
+
+void* macro_decider_create() {
+    return new syn::MacroActionDecider();
+}
+
+void macro_decider_destroy(void* dec) {
+    delete static_cast<syn::MacroActionDecider*>(dec);
+}
+
+int macro_decider_route(void* dec, double w, double x, double y, double z, const char* concl) {
+    if (!dec) return 1;
+    syn::MacroActionDecider* d = static_cast<syn::MacroActionDecider*>(dec);
+    syn::Quat q(w, x, y, z);
+    syn::MacroActionKind k = d->decide_kind(q, concl ? concl : "");
+    return (k == syn::MacroActionKind::Tier2A_DirectTerminating) ? 0 : 1;
+}
+
+}

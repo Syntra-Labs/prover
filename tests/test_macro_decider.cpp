@@ -55,6 +55,25 @@ void test_falsifications() {
     std::cout << "[PASS] Falsification: disjoint vocab and non-terminal divergence verified." << std::endl;
 }
 
+void test_admissibility_filtering() {
+    MacroActionDecider decider(0.5);
+    std::string cat_state = "h1 : S.ShortExact\n⊢ IsIso phi.tau2\n";
+    std::vector<std::pair<std::string, double>> raw = {
+        {"exact", 1.4}, {"rw", 1.8}, {"simp", 1.9}, {"apply", 2.5}, {"have", 2.4}
+    };
+    auto filtered = decider.filter_admissible_candidates(cat_state, raw);
+    assert(filtered[0].first == "have" || filtered[0].first == "apply");
+    assert(filtered.back().first == "exact" || filtered.back().first == "rw");
+
+    std::string refl_state = "⊢ a = a\n";
+    std::vector<std::pair<std::string, double>> refl_raw = {
+        {"rfl", 2.0}, {"rw", 2.5}
+    };
+    auto refl_filtered = decider.filter_admissible_candidates(refl_state, refl_raw);
+    assert(refl_filtered[0].first == "rfl");
+    std::cout << "[PASS] Candidate admissibility filtering verified." << std::endl;
+}
+
 int main() {
     std::cout << "========================================" << std::endl;
     std::cout << "TIER 1 MACRO-ACTION DECIDER TESTS (C++)" << std::endl;
@@ -62,6 +81,7 @@ int main() {
     test_metric_and_head_routing();
     test_feedback_loop();
     test_falsifications();
+    test_admissibility_filtering();
     std::cout << "========================================" << std::endl;
     std::cout << "ALL MACRO-ACTION DECIDER TESTS PASSED" << std::endl;
     std::cout << "========================================" << std::endl;
