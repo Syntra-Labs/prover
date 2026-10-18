@@ -4,27 +4,30 @@ open Lean
 partial def syntaxToPreorder (s : Syntax) : List String :=
   match s with
   | Syntax.node _ k args =>
-    let children := args.toList.flatMap syntaxToPreorder
-    if k == `null then children else s!"NODE:{k}" :: children
-  | Syntax.ident _ _ val _ => [s!"IDENT:{val}"]
+    if k == `hygieneInfo then []
+    else
+      let children := args.toList.flatMap syntaxToPreorder
+      if k == `null || k == `Lean.Parser.Term.hygienicLParen then children else s!"NODE:{k}" :: children
+  | Syntax.ident _ _ val _ =>
+    if val.isAnonymous then [] else [s!"IDENT:{val}"]
   | Syntax.atom _ val =>
     if val == "←" then ["ATOM:←"] else []
   | Syntax.missing => []
 
 partial def mapSyntaxIdents (s : Syntax) (f : String → String) : Syntax :=
   match s with
-  | Syntax.node info k args => Syntax.node info k (args.map (mapSyntaxIdents · f))
-  | Syntax.ident info raw val preres =>
-    let origStr := raw.toString
-    let parts := val.toString.splitOn "."
-    let mapped := ".".intercalate (parts.map f)
-    -- Preserve leading/trailing whitespace from raw SourceInfo when reprinting
-    let info' := match info with
-      | SourceInfo.original lead lpos trail tpos =>
-        SourceInfo.original lead lpos trail tpos
-      | other => other
-    let _ := origStr
-    Syntax.ident info' mapped.toRawSubstring mapped.toName preres
+  | Syntax.node info k args =>
+    if k == `hygieneInfo then s
+    else Syntax.node info k (args.map (mapSyntaxIdents · f))
+  | Syntax.ident info _ val preres =>
+    if val.isAnonymous then s
+    else
+      let full := val.toString
+      let mapped :=
+        let direct := f full
+        if direct != full then direct
+        else ".".intercalate ((full.splitOn ".").map f)
+      Syntax.ident info mapped.toRawSubstring mapped.toName preres
   | other => other
 
 partial def collectBinderDecls (s : Syntax) : List (String × String) :=
