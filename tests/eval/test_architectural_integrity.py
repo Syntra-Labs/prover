@@ -311,4 +311,33 @@ def test_least_action_prover_invariants():
     assert "[PASS] Task 'least-action-prover' invariants satisfied in pure C++." in res.stdout
 
 
+def test_legacy_test_script_gates():
+    """
+    Permanent Gate for `legacy-test-hardcoded` and `legacy-test-multilang`:
+    1. `scripts/test.sh` accepts target source file as $1 and defaults to `src/process.cpp`.
+    2. `scripts/test.sh` branches on file extension to call appropriate compiler (.cpp, .lean, .rs).
+    """
+    import subprocess
+    script = REPO_ROOT / "scripts/test.sh"
+    content = script.read_text(encoding="utf-8")
 
+    # Verify no hardcoded /home/yassine paths
+    assert "/home/yassine" not in content, "Hardcoded absolute user paths found in scripts/test.sh"
+
+    # Verify $1 parameterization and extension branching
+    assert "$1" in content or "${1" in content, "scripts/test.sh must accept target source file as $1"
+    assert "src/process.cpp" in content, "scripts/test.sh must default to src/process.cpp"
+    assert "cpp" in content and "lean" in content and "rs" in content, "scripts/test.sh must branch on .cpp, .lean, and .rs"
+
+    # Test execution with --help
+    res_help = subprocess.run(["bash", str(script), "--help"], capture_output=True, text=True, check=True)
+    assert "Usage:" in res_help.stdout
+
+    # Test execution with default C++ file
+    res_default = subprocess.run(["bash", str(script)], cwd=str(REPO_ROOT), capture_output=True, text=True, check=True)
+    assert res_default.returncode == 0
+
+    # Test execution with unsupported extension
+    res_unsupported = subprocess.run(["bash", str(script), "README.md"], cwd=str(REPO_ROOT), capture_output=True, text=True)
+    assert res_unsupported.returncode != 0
+    assert "unsupported file extension" in res_unsupported.stderr
