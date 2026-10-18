@@ -1,3 +1,6 @@
+-- TODO(kernel-expr-ir | tier:A | blocks:[ast-admissibility-gate, tree-rotor-operator]):
+-- Description: Extract Lean 4 kernel Lean.Expr 11-constructor DAG (bvar, fvar, mvar, sort, const, app, lam, forallE, letE, lit, proj) directly without text BPE tokenization.
+-- Criterion: assert: expr_dag_valid and bpe_tokens_used == 0
 import Lean
 open Lean
 
