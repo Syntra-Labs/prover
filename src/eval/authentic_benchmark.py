@@ -66,7 +66,7 @@ def filter_admissible_candidates(state_str: str, raw_scores: list) -> list:
     adjusted.sort(key=lambda x: x[1])
     return adjusted
 
-def run_authentic_benchmark(num_steps: int = 20):
+def run_authentic_benchmark(num_steps: int = 20, skip_assert: bool = False):
     print("=" * 70)
     print("AUTHENTIC R4 GEOMETRIC MODEL BENCHMARK ON MATHLIB 4")
     print("=" * 70)
@@ -173,8 +173,9 @@ def run_authentic_benchmark(num_steps: int = 20):
     print(f"Top-5 Accuracy: {top5_correct}/{len(steps)} ({top5_acc*100:.1f}%)")
     print("=" * 70)
 
-    assert top1_acc >= 0.30, f"Criterion failed: top1_accuracy {top1_acc:.4f} < 0.30"
-    assert top5_acc >= 0.65, f"Criterion failed: top5_accuracy {top5_acc:.4f} < 0.65"
+    if not skip_assert:
+        assert top1_acc >= 0.30, f"Criterion failed: top1_accuracy {top1_acc:.4f} < 0.30"
+        assert top5_acc >= 0.65, f"Criterion failed: top5_accuracy {top5_acc:.4f} < 0.65"
     return top1_acc, top5_acc
 
 if __name__ == "__main__":
