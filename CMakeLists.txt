@@ -39,3 +39,9 @@ add_executable(test_speculative_geodesic_search
 )
 target_link_libraries(test_speculative_geodesic_search geodesic_search)
 
+add_executable(eval_least_action_prover
+    src/eval_least_action_prover.cpp
+)
+target_link_libraries(eval_least_action_prover tree_rotor geodesic_search)
+
+

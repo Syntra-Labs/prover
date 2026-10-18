@@ -282,3 +282,33 @@ def test_tree_rotor_operator_invariants():
     assert non_commutative_asymmetry > 0.0
 
 
+def test_least_action_prover_invariants():
+    """
+    Permanent Gate for `least-action-prover`:
+    1. Certified QED Rate >= 0.80 across benchmark theorems.
+    2. Zero no-op tactics selected (noop_tactic_selected == 0).
+    """
+    import subprocess
+
+    build_dir = REPO_ROOT / "build"
+    build_dir.mkdir(exist_ok=True)
+    my_bin_dir = build_dir / "my_bin"
+    my_bin_dir.mkdir(exist_ok=True)
+
+    bin_path = my_bin_dir / "eval_least_action_prover"
+    if not bin_path.exists():
+        subprocess.run(
+            ["g++", "-std=c++11", "-O2",
+             str(REPO_ROOT / "src/eval_least_action_prover.cpp"),
+             str(REPO_ROOT / "src/tree_rotor.cpp"),
+             str(REPO_ROOT / "src/search/geodesic_search.cpp"),
+             "-o", str(bin_path)],
+            check=True
+        )
+    res = subprocess.run([str(bin_path)], capture_output=True, text=True, check=True)
+    assert "Certified QED Rate: 100.000%" in res.stdout
+    assert "No-Op Tactics Selected: 0" in res.stdout
+    assert "[PASS] Task 'least-action-prover' invariants satisfied in pure C++." in res.stdout
+
+
+
