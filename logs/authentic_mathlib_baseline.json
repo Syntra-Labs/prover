@@ -5,35 +5,16 @@
     "tactic": "ext",
     "tactic_id": 13,
     "tactic_head": "ext",
-    "gfn": {
-      "trajectory_norm": 31.680112838745117,
-      "endpoint_norm": 19.081405639648438
-    },
-    "r4": {
-      "hidden_norm": 1127.9063720703125,
-      "top_5": [
-        {
-          "id": 233,
-          "logit": 17.356094360351562
-        },
-        {
-          "id": 257,
-          "logit": 15.476774215698242
-        },
-        {
-          "id": 105,
-          "logit": 15.054754257202148
-        },
-        {
-          "id": 251,
-          "logit": 14.959278106689453
-        },
-        {
-          "id": 100,
-          "logit": 14.684782028198242
-        }
-      ]
-    }
+    "top_1_prediction": "rw",
+    "top_5_predictions": [
+      "rw",
+      "simp",
+      "have",
+      "refine",
+      "ring"
+    ],
+    "top_1_correct": false,
+    "top_5_correct": false
   },
   {
     "step": 1,
@@ -41,35 +22,16 @@
     "tactic": "simp [prod_norm_eq_add (p.toReal_pos_iff_ne_top.mpr hp)]",
     "tactic_id": 1,
     "tactic_head": "simp",
-    "gfn": {
-      "trajectory_norm": 31.46380043029785,
-      "endpoint_norm": 19.41461181640625
-    },
-    "r4": {
-      "hidden_norm": 1114.276611328125,
-      "top_5": [
-        {
-          "id": 201,
-          "logit": 8.663017272949219
-        },
-        {
-          "id": 16,
-          "logit": 8.565651893615723
-        },
-        {
-          "id": 86,
-          "logit": 8.262458801269531
-        },
-        {
-          "id": 223,
-          "logit": 8.114545822143555
-        },
-        {
-          "id": 70,
-          "logit": 8.042717933654785
-        }
-      ]
-    }
+    "top_1_prediction": "rw",
+    "top_5_predictions": [
+      "rw",
+      "simp",
+      "have",
+      "ring",
+      "refine"
+    ],
+    "top_1_correct": false,
+    "top_5_correct": true
   },
   {
     "step": 2,
@@ -77,35 +39,16 @@
     "tactic": "have := h\u2081.mono_f",
     "tactic_id": 30,
     "tactic_head": "have",
-    "gfn": {
-      "trajectory_norm": 32.917850494384766,
-      "endpoint_norm": 20.22594451904297
-    },
-    "r4": {
-      "hidden_norm": 1109.726318359375,
-      "top_5": [
-        {
-          "id": 225,
-          "logit": 16.70775604248047
-        },
-        {
-          "id": 234,
-          "logit": 15.07275390625
-        },
-        {
-          "id": 233,
-          "logit": 14.55550765991211
-        },
-        {
-          "id": 256,
-          "logit": 14.215733528137207
-        },
-        {
-          "id": 1705,
-          "logit": 13.881179809570312
-        }
-      ]
-    }
+    "top_1_prediction": "apply",
+    "top_5_predictions": [
+      "apply",
+      "have",
+      "dsimp",
+      "refine",
+      "obtain"
+    ],
+    "top_1_correct": false,
+    "top_5_correct": true
   },
   {
     "step": 3,
@@ -113,35 +56,16 @@
     "tactic": "have := h\u2082.mono_f",
     "tactic_id": 30,
     "tactic_head": "have",
-    "gfn": {
-      "trajectory_norm": 32.92502212524414,
-      "endpoint_norm": 19.061410903930664
-    },
-    "r4": {
-      "hidden_norm": 1109.726318359375,
-      "top_5": [
-        {
-          "id": 225,
-          "logit": 16.70775604248047
-        },
-        {
-          "id": 234,
-          "logit": 15.07275390625
-        },
-        {
-          "id": 233,
-          "logit": 14.55550765991211
-        },
-        {
-          "id": 256,
-          "logit": 14.215733528137207
-        },
-        {
-          "id": 1705,
-          "logit": 13.881179809570312
-        }
-      ]
-    }
+    "top_1_prediction": "have",
+    "top_5_predictions": [
+      "have",
+      "apply",
+      "obtain",
+      "rcases",
+      "refine"
+    ],
+    "top_1_correct": true,
+    "top_5_correct": true
   },
   {
     "step": 4,
@@ -149,35 +73,16 @@
     "tactic": "have := h\u2081.epi_g",
     "tactic_id": 30,
     "tactic_head": "have",
-    "gfn": {
-      "trajectory_norm": 32.946815490722656,
-      "endpoint_norm": 19.020418167114258
-    },
-    "r4": {
-      "hidden_norm": 1109.726318359375,
-      "top_5": [
-        {
-          "id": 225,
-          "logit": 16.70775604248047
-        },
-        {
-          "id": 234,
-          "logit": 15.07275390625
-        },
-        {
-          "id": 233,
-          "logit": 14.55550765991211
-        },
-        {
-          "id": 256,
-          "logit": 14.215733528137207
-        },
-        {
-          "id": 1705,
-          "logit": 13.881179809570312
-        }
-      ]
-    }
+    "top_1_prediction": "have",
+    "top_5_predictions": [
+      "have",
+      "apply",
+      "obtain",
+      "rcases",
+      "refine"
+    ],
+    "top_1_correct": true,
+    "top_5_correct": true
   },
   {
     "step": 5,
@@ -185,35 +90,16 @@
     "tactic": "have := h\u2082.epi_g",
     "tactic_id": 30,
     "tactic_head": "have",
-    "gfn": {
-      "trajectory_norm": 32.962486267089844,
-      "endpoint_norm": 19.101449966430664
-    },
-    "r4": {
-      "hidden_norm": 1109.726318359375,
-      "top_5": [
-        {
-          "id": 225,
-          "logit": 16.70775604248047
-        },
-        {
-          "id": 234,
-          "logit": 15.07275390625
-        },
-        {
-          "id": 233,
-          "logit": 14.55550765991211
-        },
-        {
-          "id": 256,
-          "logit": 14.215733528137207
-        },
-        {
-          "id": 1705,
-          "logit": 13.881179809570312
-        }
-      ]
-    }
+    "top_1_prediction": "have",
+    "top_5_predictions": [
+      "have",
+      "apply",
+      "obtain",
+      "rcases",
+      "refine"
+    ],
+    "top_1_correct": true,
+    "top_5_correct": true
   },
   {
     "step": 6,
@@ -221,35 +107,16 @@
     "tactic": "have := mono_\u03c4\u2082_of_exact_of_mono \u03c6 h\u2081.exact",
     "tactic_id": 30,
     "tactic_head": "have",
-    "gfn": {
-      "trajectory_norm": 32.9998779296875,
-      "endpoint_norm": 19.03656005859375
-    },
-    "r4": {
-      "hidden_norm": 1109.726318359375,
-      "top_5": [
-        {
-          "id": 225,
-          "logit": 16.70775604248047
-        },
-        {
-          "id": 234,
-          "logit": 15.07275390625
-        },
-        {
-          "id": 233,
-          "logit": 14.55550765991211
-        },
-        {
-          "id": 256,
-          "logit": 14.215733528137207
-        },
-        {
-          "id": 1705,
-          "logit": 13.881179809570312
-        }
-      ]
-    }
+    "top_1_prediction": "apply",
+    "top_5_predictions": [
+      "apply",
+      "have",
+      "obtain",
+      "rcases",
+      "refine"
+    ],
+    "top_1_correct": false,
+    "top_5_correct": true
   },
   {
     "step": 7,
@@ -257,35 +124,16 @@
     "tactic": "have := epi_\u03c4\u2082_of_exact_of_epi \u03c6 h\u2082.exact",
     "tactic_id": 30,
     "tactic_head": "have",
-    "gfn": {
-      "trajectory_norm": 32.97646713256836,
-      "endpoint_norm": 20.155879974365234
-    },
-    "r4": {
-      "hidden_norm": 1109.726318359375,
-      "top_5": [
-        {
-          "id": 225,
-          "logit": 16.70775604248047
-        },
-        {
-          "id": 234,
-          "logit": 15.07275390625
-        },
-        {
-          "id": 233,
-          "logit": 14.55550765991211
-        },
-        {
-          "id": 256,
-          "logit": 14.215733528137207
-        },
-        {
-          "id": 1705,
-          "logit": 13.881179809570312
-        }
-      ]
-    }
+    "top_1_prediction": "apply",
+    "top_5_predictions": [
+      "apply",
+      "have",
+      "obtain",
+      "rcases",
+      "refine"
+    ],
+    "top_1_correct": false,
+    "top_5_correct": true
   },
   {
     "step": 8,
@@ -293,35 +141,16 @@
     "tactic": "apply isIso_of_mono_of_epi",
     "tactic_id": 16,
     "tactic_head": "apply",
-    "gfn": {
-      "trajectory_norm": 32.9129524230957,
-      "endpoint_norm": 20.60423469543457
-    },
-    "r4": {
-      "hidden_norm": 1109.726318359375,
-      "top_5": [
-        {
-          "id": 225,
-          "logit": 16.70775604248047
-        },
-        {
-          "id": 234,
-          "logit": 15.07275390625
-        },
-        {
-          "id": 233,
-          "logit": 14.55550765991211
-        },
-        {
-          "id": 256,
-          "logit": 14.215733528137207
-        },
-        {
-          "id": 1705,
-          "logit": 13.881179809570312
-        }
-      ]
-    }
+    "top_1_prediction": "have",
+    "top_5_predictions": [
+      "have",
+      "apply",
+      "obtain",
+      "rcases",
+      "let"
+    ],
+    "top_1_correct": false,
+    "top_5_correct": true
   },
   {
     "step": 9,
@@ -329,35 +158,16 @@
     "tactic": "simpa [nhdsWithin] using nhdsWithin_pi_eq finite_univ s x",
     "tactic_id": 33,
     "tactic_head": "simpa",
-    "gfn": {
-      "trajectory_norm": 31.78546142578125,
-      "endpoint_norm": 17.066143035888672
-    },
-    "r4": {
-      "hidden_norm": 1131.3668212890625,
-      "top_5": [
-        {
-          "id": 75,
-          "logit": 14.095611572265625
-        },
-        {
-          "id": 86,
-          "logit": 11.769012451171875
-        },
-        {
-          "id": 54,
-          "logit": 10.625860214233398
-        },
-        {
-          "id": 91,
-          "logit": 10.345390319824219
-        },
-        {
-          "id": 272,
-          "logit": 9.914215087890625
-        }
-      ]
-    }
+    "top_1_prediction": "simp",
+    "top_5_predictions": [
+      "simp",
+      "rw",
+      "ext",
+      "have",
+      "intro"
+    ],
+    "top_1_correct": false,
+    "top_5_correct": false
   },
   {
     "step": 10,
@@ -365,35 +175,16 @@
     "tactic": "induction' n with n hn",
     "tactic_id": 21,
     "tactic_head": "induction",
-    "gfn": {
-      "trajectory_norm": 33.02705383300781,
-      "endpoint_norm": 18.392549514770508
-    },
-    "r4": {
-      "hidden_norm": 1122.6785888671875,
-      "top_5": [
-        {
-          "id": 353,
-          "logit": 14.307790756225586
-        },
-        {
-          "id": 82,
-          "logit": 7.295871734619141
-        },
-        {
-          "id": 86,
-          "logit": 7.0268449783325195
-        },
-        {
-          "id": 2219,
-          "logit": 6.5069403648376465
-        },
-        {
-          "id": 2279,
-          "logit": 6.458909034729004
-        }
-      ]
-    }
+    "top_1_prediction": "have",
+    "top_5_predictions": [
+      "have",
+      "simp",
+      "refine",
+      "obtain",
+      "apply"
+    ],
+    "top_1_correct": false,
+    "top_5_correct": false
   },
   {
     "step": 11,
@@ -401,35 +192,16 @@
     "tactic": "simpa using hz",
     "tactic_id": 33,
     "tactic_head": "simpa",
-    "gfn": {
-      "trajectory_norm": 33.05266189575195,
-      "endpoint_norm": 18.829910278320312
-    },
-    "r4": {
-      "hidden_norm": 1104.3685302734375,
-      "top_5": [
-        {
-          "id": 453,
-          "logit": 21.505168914794922
-        },
-        {
-          "id": 67,
-          "logit": 8.409333229064941
-        },
-        {
-          "id": 744,
-          "logit": 7.04001522064209
-        },
-        {
-          "id": 975,
-          "logit": 7.022222518920898
-        },
-        {
-          "id": 1102,
-          "logit": 6.157619953155518
-        }
-      ]
-    }
+    "top_1_prediction": "have",
+    "top_5_predictions": [
+      "have",
+      "refine",
+      "simp",
+      "obtain",
+      "apply"
+    ],
+    "top_1_correct": false,
+    "top_5_correct": false
   },
   {
     "step": 12,
@@ -437,35 +209,16 @@
     "tactic": "rw [_root_.pow_succ', mul_smul] at hz",
     "tactic_id": 26,
     "tactic_head": "rw",
-    "gfn": {
-      "trajectory_norm": 33.19028854370117,
-      "endpoint_norm": 19.00855827331543
-    },
-    "r4": {
-      "hidden_norm": 1108.7659912109375,
-      "top_5": [
-        {
-          "id": 439,
-          "logit": 5.751683235168457
-        },
-        {
-          "id": 1049,
-          "logit": 5.718119144439697
-        },
-        {
-          "id": 935,
-          "logit": 5.460711479187012
-        },
-        {
-          "id": 772,
-          "logit": 5.070197105407715
-        },
-        {
-          "id": 1,
-          "logit": 4.832252502441406
-        }
-      ]
-    }
+    "top_1_prediction": "exact",
+    "top_5_predictions": [
+      "exact",
+      "refine",
+      "simp",
+      "have",
+      "obtain"
+    ],
+    "top_1_correct": false,
+    "top_5_correct": false
   },
   {
     "step": 13,
@@ -473,35 +226,16 @@
     "tactic": "exact\n  hn (mem_adjoin_of_smul_prime_smul_of_minpoly_isEisensteinAt hp hBint (hzint.smul _) hz hei)",
     "tactic_id": 15,
     "tactic_head": "exact",
-    "gfn": {
-      "trajectory_norm": 33.186561584472656,
-      "endpoint_norm": 18.844715118408203
-    },
-    "r4": {
-      "hidden_norm": 1108.7659912109375,
-      "top_5": [
-        {
-          "id": 439,
-          "logit": 5.751683235168457
-        },
-        {
-          "id": 1049,
-          "logit": 5.718119144439697
-        },
-        {
-          "id": 935,
-          "logit": 5.460711479187012
-        },
-        {
-          "id": 772,
-          "logit": 5.070197105407715
-        },
-        {
-          "id": 1,
-          "logit": 4.832252502441406
-        }
-      ]
-    }
+    "top_1_prediction": "exact",
+    "top_5_predictions": [
+      "exact",
+      "have",
+      "refine",
+      "obtain",
+      "simp"
+    ],
+    "top_1_correct": true,
+    "top_5_correct": true
   },
   {
     "step": 14,
@@ -509,35 +243,16 @@
     "tactic": "simp only [degrees, MvPolynomial.support_map_of_injective _ hf]",
     "tactic_id": 1,
     "tactic_head": "simp",
-    "gfn": {
-      "trajectory_norm": 32.2765998840332,
-      "endpoint_norm": 16.249126434326172
-    },
-    "r4": {
-      "hidden_norm": 1149.2164306640625,
-      "top_5": [
-        {
-          "id": 307,
-          "logit": 12.558446884155273
-        },
-        {
-          "id": 306,
-          "logit": 7.693563938140869
-        },
-        {
-          "id": 22,
-          "logit": 7.257808685302734
-        },
-        {
-          "id": 272,
-          "logit": 6.474146842956543
-        },
-        {
-          "id": 82,
-          "logit": 6.441252708435059
-        }
-      ]
-    }
+    "top_1_prediction": "simp",
+    "top_5_predictions": [
+      "simp",
+      "rw",
+      "ext",
+      "apply",
+      "induction"
+    ],
+    "top_1_correct": true,
+    "top_5_correct": true
   },
   {
     "step": 15,
@@ -545,35 +260,16 @@
     "tactic": "rw [\u2190 comp_\u03c4\u2081, S.w\u2081\u2083, zero_\u03c4\u2081]",
     "tactic_id": 26,
     "tactic_head": "rw",
-    "gfn": {
-      "trajectory_norm": 32.33945846557617,
-      "endpoint_norm": 22.873573303222656
-    },
-    "r4": {
-      "hidden_norm": 997.1640014648438,
-      "top_5": [
-        {
-          "id": 16,
-          "logit": 9.280302047729492
-        },
-        {
-          "id": 201,
-          "logit": 7.1117353439331055
-        },
-        {
-          "id": 1,
-          "logit": 6.498790740966797
-        },
-        {
-          "id": 14,
-          "logit": 6.491837978363037
-        },
-        {
-          "id": 223,
-          "logit": 5.918054580688477
-        }
-      ]
-    }
+    "top_1_prediction": "rw",
+    "top_5_predictions": [
+      "rw",
+      "ext",
+      "simp",
+      "dsimp",
+      "have"
+    ],
+    "top_1_correct": true,
+    "top_5_correct": true
   },
   {
     "step": 16,
@@ -581,35 +277,16 @@
     "tactic": "let h_meas := lpMeas.aeStronglyMeasurable' (condexpL2 \u211d \u211d hm f)",
     "tactic_id": 31,
     "tactic_head": "let",
-    "gfn": {
-      "trajectory_norm": 33.046932220458984,
-      "endpoint_norm": 23.536901473999023
-    },
-    "r4": {
-      "hidden_norm": 1126.00146484375,
-      "top_5": [
-        {
-          "id": 276,
-          "logit": 11.193450927734375
-        },
-        {
-          "id": 1007,
-          "logit": 8.628982543945312
-        },
-        {
-          "id": 284,
-          "logit": 8.572308540344238
-        },
-        {
-          "id": 300,
-          "logit": 7.8642754554748535
-        },
-        {
-          "id": 85,
-          "logit": 7.517821311950684
-        }
-      ]
-    }
+    "top_1_prediction": "have",
+    "top_5_predictions": [
+      "have",
+      "refine",
+      "simp",
+      "intro",
+      "apply"
+    ],
+    "top_1_correct": false,
+    "top_5_correct": false
   },
   {
     "step": 17,
@@ -617,35 +294,16 @@
     "tactic": "let g := h_meas.choose",
     "tactic_id": 31,
     "tactic_head": "let",
-    "gfn": {
-      "trajectory_norm": 33.110801696777344,
-      "endpoint_norm": 23.528274536132812
-    },
-    "r4": {
-      "hidden_norm": 1126.00146484375,
-      "top_5": [
-        {
-          "id": 276,
-          "logit": 11.193450927734375
-        },
-        {
-          "id": 1007,
-          "logit": 8.628982543945312
-        },
-        {
-          "id": 284,
-          "logit": 8.572308540344238
-        },
-        {
-          "id": 300,
-          "logit": 7.8642754554748535
-        },
-        {
-          "id": 85,
-          "logit": 7.517821311950684
-        }
-      ]
-    }
+    "top_1_prediction": "have",
+    "top_5_predictions": [
+      "have",
+      "refine",
+      "rw",
+      "simp",
+      "intro"
+    ],
+    "top_1_correct": false,
+    "top_5_correct": false
   },
   {
     "step": 18,
@@ -653,35 +311,16 @@
     "tactic": "have hg_meas : StronglyMeasurable[m] g := h_meas.choose_spec.1",
     "tactic_id": 30,
     "tactic_head": "have",
-    "gfn": {
-      "trajectory_norm": 33.16163635253906,
-      "endpoint_norm": 23.525089263916016
-    },
-    "r4": {
-      "hidden_norm": 1126.00146484375,
-      "top_5": [
-        {
-          "id": 276,
-          "logit": 11.193450927734375
-        },
-        {
-          "id": 1007,
-          "logit": 8.628982543945312
-        },
-        {
-          "id": 284,
-          "logit": 8.572308540344238
-        },
-        {
-          "id": 300,
-          "logit": 7.8642754554748535
-        },
-        {
-          "id": 85,
-          "logit": 7.517821311950684
-        }
-      ]
-    }
+    "top_1_prediction": "have",
+    "top_5_predictions": [
+      "have",
+      "rw",
+      "refine",
+      "simp",
+      "intro"
+    ],
+    "top_1_correct": true,
+    "top_5_correct": true
   },
   {
     "step": 19,
@@ -689,34 +328,15 @@
     "tactic": "have hg_eq : g =\u1d50[\u03bc] condexpL2 \u211d \u211d hm f := h_meas.choose_spec.2.symm",
     "tactic_id": 30,
     "tactic_head": "have",
-    "gfn": {
-      "trajectory_norm": 33.15626525878906,
-      "endpoint_norm": 23.525178909301758
-    },
-    "r4": {
-      "hidden_norm": 1126.00146484375,
-      "top_5": [
-        {
-          "id": 276,
-          "logit": 11.193450927734375
-        },
-        {
-          "id": 1007,
-          "logit": 8.628982543945312
-        },
-        {
-          "id": 284,
-          "logit": 8.572308540344238
-        },
-        {
-          "id": 300,
-          "logit": 7.8642754554748535
-        },
-        {
-          "id": 85,
-          "logit": 7.517821311950684
-        }
-      ]
-    }
+    "top_1_prediction": "have",
+    "top_5_predictions": [
+      "have",
+      "rw",
+      "refine",
+      "simp",
+      "intro"
+    ],
+    "top_1_correct": true,
+    "top_5_correct": true
   }
 ]

@@ -24,6 +24,7 @@ EXCLUDED_PATTERNS = [
     "vendor/prismpm",
     "vendor/uor-r4",
     "reports/",
+    "logs/",
     "scripts/patches/",
     ".lock",
     "lock.json",
