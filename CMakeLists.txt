@@ -29,3 +29,13 @@ add_executable(test_tree_rotor
     tests/test_tree_rotor.cpp
 )
 target_link_libraries(test_tree_rotor tree_rotor)
+
+add_library(geodesic_search
+    src/search/geodesic_search.cpp
+)
+
+add_executable(test_speculative_geodesic_search
+    tests/test_speculative_geodesic_search.cpp
+)
+target_link_libraries(test_speculative_geodesic_search geodesic_search)
+
