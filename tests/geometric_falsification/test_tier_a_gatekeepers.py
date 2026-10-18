@@ -36,12 +36,19 @@ def test_voronoi_dispersion(mathlib_sample, authentic_e8_snap):
 
     assert len(proof_states) >= 30, "Insufficient proof states for test"
 
+    from src.eval.tactic_eval import TacticEvaluator
+    from src.eval.r4_runner import find_latest_checkpoint
+    from src.ir.canonicalizer import canonicalize
+
+    ckpt_path = find_latest_checkpoint()
+    evaluator = TacticEvaluator(ckpt_path, device="cpu")
+
     # Test Conway-Sloane snapping on sample embedding blocks (8 blocks of 8D)
     cells = []
     for idx, state in enumerate(proof_states):
-        # Generate pseudo-embedding from state token hash for local check, replaced by R4 hidden state on GPU
-        h = [float((hash(state + str(i)) % 1000) / 100.0) for i in range(64)]
-        v = np.array(h, dtype=np.float64)
+        canon_state, _, _ = canonicalize(state)
+        h = evaluator.get_final_hidden(canon_state)
+        v = h[:64].detach().cpu().numpy().astype(np.float64)
 
         blocks = [v[8 * b : 8 * (b + 1)].tolist() for b in range(8)]
         snapped_blocks = authentic_e8_snap(blocks, scale=0.5)
@@ -85,5 +92,59 @@ def test_r4_tokenizer_integrity(mathlib_sample, r4_inspect_bin):
             break
 
     assert len(proof_states) >= 15, "Insufficient proof states for test"
-    # Authenticity: verified through compiled binary
-    print(f"\n[gate-r4-token] Verified {len(proof_states)} Lean 4 states against R4 tokenizer pipeline.")
+
+    from pathlib import Path
+    from tokenizers import Tokenizer
+
+    # Load authentic R4 tokenizer matching src/eval/r4_runner.py
+    tok_candidates = []
+    try:
+        from src.eval.r4_runner import find_latest_checkpoint
+        latest_ckpt = Path(find_latest_checkpoint())
+        tok_candidates.extend([
+            latest_ckpt / "tokenizer.json",
+            latest_ckpt.parent / "tokenizer.json",
+        ])
+    except Exception:
+        pass
+
+    root_dir = Path(__file__).resolve().parent.parent.parent
+    tok_candidates.extend([
+        root_dir / "reports/tokenizer.json",
+        root_dir / "data/mathlib4/tokenizer.json",
+        Path("reports/tokenizer.json"),
+        Path("data/mathlib4/tokenizer.json"),
+        Path("/content/syn-prover/data/mathlib4/tokenizer.json"),
+    ])
+
+    tok_path = next((p for p in tok_candidates if p.exists()), None)
+    assert tok_path is not None, f"Could not find tokenizer.json in candidates: {tok_candidates}"
+    tokenizer = Tokenizer.from_file(str(tok_path))
+
+    unk_id = tokenizer.token_to_id("<|unk|>")
+    if unk_id is None:
+        unk_id = tokenizer.token_to_id("<unk>")
+
+    total_tokens = 0
+    total_unk = 0
+
+    for state in proof_states:
+        enc = tokenizer.encode(state)
+        total_tokens += len(enc.ids)
+        if unk_id is not None:
+            total_unk += sum(1 for tid in enc.ids if tid == unk_id)
+        else:
+            total_unk += sum(1 for tok in enc.tokens if tok in ("<|unk|>", "<unk>"))
+
+    assert total_tokens > 0, "No tokens produced from proof states"
+    num_states = len(proof_states)
+    unk_rate = total_unk / total_tokens
+    tokens_per_step = total_tokens / num_states
+
+    print(f"\n[gate-r4-token] Verified {num_states} Lean 4 states against R4 tokenizer pipeline.")
+    print(f"[gate-r4-token] Total tokens: {total_tokens}, UNK tokens: {total_unk}")
+    print(f"[gate-r4-token] UNK rate: {unk_rate:.6f}, Tokens per step: {tokens_per_step:.2f}")
+
+    assert unk_rate < 0.001, f"UNK rate {unk_rate:.6f} >= 0.001"
+    assert tokens_per_step > 5, f"Tokens per step {tokens_per_step:.2f} <= 5"
+
