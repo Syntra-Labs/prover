@@ -23,6 +23,8 @@ EXCLUDED_PATTERNS = [
     "vendor/leandojo",
     "vendor/prismpm",
     "vendor/uor-r4",
+    "reports/",
+    "scripts/patches/",
     ".lock",
     "lock.json",
 ]

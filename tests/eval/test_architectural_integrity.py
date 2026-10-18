@@ -182,3 +182,20 @@ def test_ir_bijection_and_param_tactic_dag_gates():
     assert synthesized[0][0] == "rw [← hy] at hx", (
         f"param-tactic-synthesis violation: expected 'rw [← hy] at hx', got {synthesized[0][0]!r}"
     )
+
+    # 4. Verify unified turnstile format + blind-inference LemmaTable (L0, L1, ...) bijection
+    from src.ir.lemma_table import LemmaTable
+    lt = LemmaTable()
+    thm_decl = "theorem prop_id (p : Prop) (h : p) : p := by"
+    c_decl, c_dtac, decl_sigma = canonicalize(thm_decl, "exact h", lemma_table=lt)
+    assert c_decl == "v0 : Prop\nh0 : v0\n⊢ v0"
+    assert c_dtac == "exact h0"
+    assert invert_sigma(c_dtac, decl_sigma, lemma_table=lt) == "exact h"
+
+    eisen_state = "K : Type u_1\nhp : Prime p\nhn : ¬x ∈ adjoin K {y}\n⊢ False"
+    eisen_tac = "exact hn (mem_adjoin_of_smul_prime_smul_of_minpoly_isEisensteinAt hp)"
+    c_es, c_etac, _ = canonicalize(eisen_state, eisen_tac, lemma_table=lt)
+    assert c_etac == "exact h0 (L0 v1)"
+    _, _, blind_sigma = canonicalize(eisen_state, lemma_table=lt)
+    assert "L0" not in blind_sigma.values()
+    assert invert_sigma(c_etac, blind_sigma, lemma_table=lt) == eisen_tac
