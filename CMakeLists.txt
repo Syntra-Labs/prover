@@ -44,4 +44,12 @@ add_executable(eval_least_action_prover
 )
 target_link_libraries(eval_least_action_prover tree_rotor geodesic_search)
 
+add_library(macro_decider
+    src/search/macro_decider.cpp
+)
+target_link_libraries(macro_decider tree_rotor)
 
+add_executable(test_macro_decider
+    tests/test_macro_decider.cpp
+)
+target_link_libraries(test_macro_decider macro_decider tree_rotor)
