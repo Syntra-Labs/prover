@@ -20,3 +20,12 @@ add_executable(prover
     src/process.cpp
     src/parseJsonl.cpp
 )
+
+add_library(tree_rotor
+    src/tree_rotor.cpp
+)
+
+add_executable(test_tree_rotor
+    tests/test_tree_rotor.cpp
+)
+target_link_libraries(test_tree_rotor tree_rotor)

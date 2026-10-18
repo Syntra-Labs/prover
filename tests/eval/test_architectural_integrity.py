@@ -233,3 +233,52 @@ def test_kernel_expr_and_admissibility_gate():
     assert reduction >= 0.99
     assert Move("exact", "fv1") in moves_full
 
+
+def test_tree_rotor_operator_invariants():
+    """
+    Permanent Gate for `tree-rotor-operator`:
+    1. Zero fixed sliding-window truncation: AST DAG is folded completely without truncation.
+    2. Non-commutative asymmetry: d_S3(App(A, B), App(B, A)) > 0.
+    """
+    import subprocess
+    import ctypes
+
+    build_dir = REPO_ROOT / "build"
+    build_dir.mkdir(exist_ok=True)
+    my_bin_dir = build_dir / "my_bin"
+    my_bin_dir.mkdir(exist_ok=True)
+
+    bin_path = my_bin_dir / "test_tree_rotor"
+    if not bin_path.exists():
+        subprocess.run(
+            ["g++", "-std=c++17", "-O2", str(REPO_ROOT / "src/tree_rotor.cpp"),
+             str(REPO_ROOT / "tests/test_tree_rotor.cpp"), "-o", str(bin_path)],
+            check=True
+        )
+    res = subprocess.run([str(bin_path)], capture_output=True, text=True, check=True)
+    assert "ALL S^3 TREE ROTOR OPERATOR TESTS PASSED" in res.stdout
+
+    # Test C-ABI invariants directly via ctypes
+    so_path = build_dir / "libtree_rotor.so"
+    if not so_path.exists():
+        subprocess.run(
+            ["g++", "-std=c++17", "-fPIC", "-shared", str(REPO_ROOT / "src/tree_rotor.cpp"),
+             "-o", str(so_path)],
+            check=True
+        )
+    lib = ctypes.CDLL(str(so_path))
+    lib.rotor_check_invariants.argtypes = [ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double)]
+    lib.rotor_check_invariants.restype = ctypes.c_int
+
+    asym = ctypes.c_double(0.0)
+    trunc = ctypes.c_double(1.0)
+    rc = lib.rotor_check_invariants(ctypes.byref(asym), ctypes.byref(trunc))
+
+    window_truncation_rate = trunc.value
+    non_commutative_asymmetry = asym.value
+
+    assert rc == 0
+    assert window_truncation_rate == 0.0
+    assert non_commutative_asymmetry > 0.0
+
+
