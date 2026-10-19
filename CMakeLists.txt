@@ -26,6 +26,11 @@ add_library(tree_rotor
     src/tree_rotor.cpp
 )
 
+add_library(tree_rotor_shared SHARED
+    src/tree_rotor.cpp
+)
+set_target_properties(tree_rotor_shared PROPERTIES OUTPUT_NAME "tree_rotor")
+
 add_executable(test_tree_rotor
     tests/test_tree_rotor.cpp
 )

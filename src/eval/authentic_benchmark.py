@@ -1,5 +1,5 @@
 # TODO(policy-r4 | tier:B | depends_on:[stab-alpha, stab-jitter] | blocks:[macro-decider]):
-# Description: Train linear/MLP classification head over R4 1024-dim hidden states mapping to 50 discrete tactics.
+# Description: Train linear/MLP classification head over R4 1024-dim hidden states mapping to 50 discrete tactics (baseline: 21.5% Top-1 on 191 Mathlib steps).
 # Criterion: assert: top1_accuracy >= 0.30 and top5_accuracy >= 0.65 on Mathlib 4 validation holdout
 
 # TODO(unify-bundle | tier:C | depends_on:[gate-e8, gate-r4-token] | blocks:[search-action]):
@@ -7,7 +7,7 @@
 # Criterion: review: "End-to-end forward pass maps Lean goal to discrete tactic via E8 Voronoi snapping on Cloud A100"
 
 # TODO(macro-decider | tier:C | depends_on:[policy-r4, search-action, search-dead-tactic]):
-# Description: Implement Tier 1 Macro-Action Decider gating terminating procedures vs forward lemma invention.
+# Description: Implement Tier 1 Macro-Action Decider gating terminating procedures vs forward lemma invention with genuine kernel feedback.
 # Criterion: review: "Decider routes proof search between Tier 2A direct tactics and Tier 2B forward invention with kernel feedback"
 
 import sys
@@ -40,9 +40,6 @@ def filter_admissible_candidates(state_str: str, raw_scores: list) -> list:
     has_exact = any(concl and concl == h.split(":", 1)[1].strip() for h in hyps)
     has_arrow_target = any(concl and "→" in h and concl in h.split("→")[-1] for h in hyps)
     has_eq = ("=" in concl) or any("=" in h.split(":", 1)[1] for h in hyps)
-    is_cat = any(sym in concl for sym in ("⟶", "≫", "IsIso", "Mono", "Epi", "ShortComplex"))
-    is_measure = any(sym in concl for sym in ("∫", "∫⁻", "Measure", "Measurable", "condexpL2"))
-    is_degrees = ("degrees" in concl or "Degrees" in concl)
 
     adjusted = []
     for k, v in raw_scores:
@@ -53,14 +50,6 @@ def filter_admissible_candidates(state_str: str, raw_scores: list) -> list:
             pen += 50.0
         if k in ("rw", "nth_rw", "simp_rw") and not has_eq:
             pen += 50.0
-        if is_cat and k == "simp":
-            pen += 2.0
-        if is_cat and k in ("have", "apply"):
-            pen -= 0.5
-        if is_measure and k in ("let", "have"):
-            pen -= 0.5
-        if is_degrees and k == "simp":
-            pen -= 1.0
         adjusted.append((k, v + pen))
 
     adjusted.sort(key=lambda x: x[1])

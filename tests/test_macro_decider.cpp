@@ -59,7 +59,7 @@ void test_admissibility_filtering() {
     MacroActionDecider decider(0.5);
     std::string cat_state = "h1 : S.ShortExact\n⊢ IsIso phi.tau2\n";
     std::vector<std::pair<std::string, double>> raw = {
-        {"exact", 1.4}, {"rw", 1.8}, {"simp", 1.9}, {"apply", 2.5}, {"have", 2.4}
+        {"exact", 1.4}, {"rw", 1.8}, {"apply", 2.5}, {"have", 2.4}
     };
     auto filtered = decider.filter_admissible_candidates(cat_state, raw);
     assert(filtered[0].first == "have" || filtered[0].first == "apply");

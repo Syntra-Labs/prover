@@ -131,13 +131,6 @@ std::vector<std::pair<std::string, double>> MacroActionDecider::filter_admissibl
         }
     }
 
-    bool is_cat = (concl.find("⟶") != std::string::npos || concl.find("≫") != std::string::npos ||
-                   concl.find("IsIso") != std::string::npos || concl.find("Mono") != std::string::npos ||
-                   concl.find("Epi") != std::string::npos || concl.find("ShortComplex") != std::string::npos);
-    bool is_measure = (concl.find("∫") != std::string::npos || concl.find("Measure") != std::string::npos ||
-                       concl.find("condexpL2") != std::string::npos);
-    bool is_degrees = (concl.find("degrees") != std::string::npos || concl.find("Degrees") != std::string::npos);
-
     std::vector<std::pair<std::string, double>> res;
     res.reserve(raw_scores.size());
 
@@ -147,10 +140,6 @@ std::vector<std::pair<std::string, double>> MacroActionDecider::filter_admissibl
         if (tac == "exact" && !(has_exact || has_arrow_target)) s += 50.0;
         if ((tac == "rfl" || tac == "decide") && !is_term) s += 50.0;
         if ((tac == "rw" || tac == "nth_rw" || tac == "simp_rw") && !has_eq) s += 50.0;
-        if (is_cat && tac == "simp") s += 2.0;
-        if (is_cat && (tac == "have" || tac == "apply")) s -= 0.5;
-        if (is_measure && (tac == "let" || tac == "have")) s -= 0.5;
-        if (is_degrees && tac == "simp") s -= 1.0;
         res.push_back({tac, s});
     }
 

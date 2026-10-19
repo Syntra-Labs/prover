@@ -1,5 +1,5 @@
 # TODO(least-action-prover | tier:C | depends_on:[ast-admissibility-gate, tree-rotor-operator] | blocks:[macro-decider]):
-# Description: Rank admissible AST transitions by geodesic action reduction d_S3(T_a(z_s), z_QED) toward the closed-goal state rather than statistical token frequency.
+# Description: Rank admissible AST transitions by geodesic action reduction d_S3(T_a(z_s), z_QED) toward closed goal (pending classification head integration).
 # Criterion: assert: certified_qed_rate >= 0.80 and noop_tactic_selected == 0
 """
 Speculative Adaptive-Margin Geodesic Search Engine.

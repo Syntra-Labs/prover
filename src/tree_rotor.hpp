@@ -120,7 +120,7 @@ public:
 
     // Evaluates an Expr DAG bottom-up without sliding-window truncation.
     // Guaranteed window_truncation_rate == 0.0.
-    Quat fold_dag(const std::vector<ExprNode>& nodes, uint32_t root_id) const;
+    Quat fold_dag(const std::vector<ExprNode>& nodes, uint32_t root_id, size_t* out_visited_count = nullptr) const;
 
     // Evaluates non-commutative asymmetry:
     // d_S3(fold(app(A, B)), fold(app(B, A)))

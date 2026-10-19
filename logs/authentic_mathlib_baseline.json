@@ -39,13 +39,13 @@
     "tactic": "have := h\u2081.mono_f",
     "tactic_id": 30,
     "tactic_head": "have",
-    "top_1_prediction": "apply",
+    "top_1_prediction": "simp",
     "top_5_predictions": [
+      "simp",
       "apply",
       "have",
       "dsimp",
-      "refine",
-      "obtain"
+      "refine"
     ],
     "top_1_correct": false,
     "top_5_correct": true
@@ -56,15 +56,15 @@
     "tactic": "have := h\u2082.mono_f",
     "tactic_id": 30,
     "tactic_head": "have",
-    "top_1_prediction": "have",
+    "top_1_prediction": "simp",
     "top_5_predictions": [
+      "simp",
       "have",
       "apply",
       "obtain",
-      "rcases",
-      "refine"
+      "rcases"
     ],
-    "top_1_correct": true,
+    "top_1_correct": false,
     "top_5_correct": true
   },
   {
@@ -77,9 +77,9 @@
     "top_5_predictions": [
       "have",
       "apply",
+      "simp",
       "obtain",
-      "rcases",
-      "refine"
+      "rcases"
     ],
     "top_1_correct": true,
     "top_5_correct": true
@@ -94,9 +94,9 @@
     "top_5_predictions": [
       "have",
       "apply",
+      "simp",
       "obtain",
-      "rcases",
-      "refine"
+      "rcases"
     ],
     "top_1_correct": true,
     "top_5_correct": true
@@ -111,9 +111,9 @@
     "top_5_predictions": [
       "apply",
       "have",
+      "simp",
       "obtain",
-      "rcases",
-      "refine"
+      "rcases"
     ],
     "top_1_correct": false,
     "top_5_correct": true
@@ -128,9 +128,9 @@
     "top_5_predictions": [
       "apply",
       "have",
+      "simp",
       "obtain",
-      "rcases",
-      "refine"
+      "rcases"
     ],
     "top_1_correct": false,
     "top_5_correct": true
@@ -145,9 +145,9 @@
     "top_5_predictions": [
       "have",
       "apply",
+      "simp",
       "obtain",
-      "rcases",
-      "let"
+      "rcases"
     ],
     "top_1_correct": false,
     "top_5_correct": true
@@ -243,15 +243,15 @@
     "tactic": "simp only [degrees, MvPolynomial.support_map_of_injective _ hf]",
     "tactic_id": 1,
     "tactic_head": "simp",
-    "top_1_prediction": "simp",
+    "top_1_prediction": "rw",
     "top_5_predictions": [
-      "simp",
       "rw",
+      "simp",
       "ext",
       "apply",
       "induction"
     ],
-    "top_1_correct": true,
+    "top_1_correct": false,
     "top_5_correct": true
   },
   {
@@ -260,15 +260,15 @@
     "tactic": "rw [\u2190 comp_\u03c4\u2081, S.w\u2081\u2083, zero_\u03c4\u2081]",
     "tactic_id": 26,
     "tactic_head": "rw",
-    "top_1_prediction": "rw",
+    "top_1_prediction": "simp",
     "top_5_predictions": [
+      "simp",
       "rw",
       "ext",
-      "simp",
       "dsimp",
       "have"
     ],
-    "top_1_correct": true,
+    "top_1_correct": false,
     "top_5_correct": true
   },
   {
@@ -277,10 +277,10 @@
     "tactic": "let h_meas := lpMeas.aeStronglyMeasurable' (condexpL2 \u211d \u211d hm f)",
     "tactic_id": 31,
     "tactic_head": "let",
-    "top_1_prediction": "have",
+    "top_1_prediction": "refine",
     "top_5_predictions": [
-      "have",
       "refine",
+      "have",
       "simp",
       "intro",
       "apply"
@@ -294,11 +294,11 @@
     "tactic": "let g := h_meas.choose",
     "tactic_id": 31,
     "tactic_head": "let",
-    "top_1_prediction": "have",
+    "top_1_prediction": "refine",
     "top_5_predictions": [
-      "have",
       "refine",
       "rw",
+      "have",
       "simp",
       "intro"
     ],
@@ -311,15 +311,15 @@
     "tactic": "have hg_meas : StronglyMeasurable[m] g := h_meas.choose_spec.1",
     "tactic_id": 30,
     "tactic_head": "have",
-    "top_1_prediction": "have",
+    "top_1_prediction": "rw",
     "top_5_predictions": [
-      "have",
       "rw",
       "refine",
+      "have",
       "simp",
       "intro"
     ],
-    "top_1_correct": true,
+    "top_1_correct": false,
     "top_5_correct": true
   },
   {
@@ -328,15 +328,15 @@
     "tactic": "have hg_eq : g =\u1d50[\u03bc] condexpL2 \u211d \u211d hm f := h_meas.choose_spec.2.symm",
     "tactic_id": 30,
     "tactic_head": "have",
-    "top_1_prediction": "have",
+    "top_1_prediction": "rw",
     "top_5_predictions": [
-      "have",
       "rw",
       "refine",
+      "have",
       "simp",
       "intro"
     ],
-    "top_1_correct": true,
+    "top_1_correct": false,
     "top_5_correct": true
   }
 ]

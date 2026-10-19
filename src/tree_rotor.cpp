@@ -37,14 +37,18 @@ RotorCodebook::RotorCodebook() {
 TreeRotorOperator::TreeRotorOperator(RotorCodebook codebook)
     : codebook_(codebook) {}
 
-Quat TreeRotorOperator::fold_dag(const std::vector<ExprNode>& nodes, uint32_t root_id) const {
+Quat TreeRotorOperator::fold_dag(const std::vector<ExprNode>& nodes, uint32_t root_id, size_t* out_visited_count) const {
     std::unordered_map<uint32_t, const ExprNode*> node_map;
     node_map.reserve(nodes.size());
     for (const auto& n : nodes) {
         node_map[n.id] = &n;
     }
     std::unordered_map<uint32_t, Quat> memo;
-    return fold_recursive(node_map, root_id, memo);
+    Quat res = fold_recursive(node_map, root_id, memo);
+    if (out_visited_count) {
+        *out_visited_count = memo.size();
+    }
+    return res;
 }
 
 Quat TreeRotorOperator::fold_recursive(
@@ -178,8 +182,30 @@ int rotor_check_invariants(double* out_asymmetry, double* out_truncation_rate) {
     syn::ExprNode b{2, syn::ExprKind::BVAR, 0, "", {}};
     double asym = op.non_commutative_asymmetry(a, b);
     if (out_asymmetry) *out_asymmetry = asym;
-    if (out_truncation_rate) *out_truncation_rate = 0.0;
-    return (asym > 0.0) ? 0 : 1;
+
+    // Verify zero window truncation on a 63-node tree (depth 6 DAG)
+    std::vector<syn::ExprNode> nodes;
+    for (uint32_t i = 0; i < 32; ++i) {
+        nodes.push_back({i, syn::ExprKind::CONST, i, "c" + std::to_string(i), {}});
+    }
+    uint32_t prev_start = 0;
+    uint32_t prev_count = 32;
+    uint32_t curr_id = 32;
+    while (prev_count > 1) {
+        uint32_t next_count = prev_count / 2;
+        for (uint32_t j = 0; j < next_count; ++j) {
+            nodes.push_back({curr_id + j, syn::ExprKind::APP, 0, "", {prev_start + 2 * j, prev_start + 2 * j + 1}});
+        }
+        prev_start = curr_id;
+        prev_count = next_count;
+        curr_id += next_count;
+    }
+    size_t visited = 0;
+    op.fold_dag(nodes, nodes.back().id, &visited);
+    double trunc_rate = (nodes.empty()) ? 0.0 : (1.0 - static_cast<double>(visited) / static_cast<double>(nodes.size()));
+    if (out_truncation_rate) *out_truncation_rate = trunc_rate;
+
+    return (asym > 0.0 && trunc_rate == 0.0) ? 0 : 1;
 }
 
 }

@@ -68,13 +68,14 @@ void test_zero_window_truncation() {
     assert(nodes.size() == 1023);
 
     // Fold entire tree
-    Quat root_q = op.fold_dag(nodes, root_id);
+    size_t visited = 0;
+    Quat root_q = op.fold_dag(nodes, root_id, &visited);
 
     // Verify it reached S^3 with norm 1.0
     assert(std::abs(root_q.norm() - 1.0) < 1e-9);
 
     // window_truncation_rate is strictly 0.0 (all 1023 nodes visited and folded)
-    double truncation_rate = 0.0;
+    double truncation_rate = (nodes.empty()) ? 0.0 : (1.0 - static_cast<double>(visited) / static_cast<double>(nodes.size()));
     assert(truncation_rate == 0.0);
     std::cout << "[PASS] Zero window truncation verified on 1,023-node AST DAG (window_truncation_rate = 0.0)." << std::endl;
 }
