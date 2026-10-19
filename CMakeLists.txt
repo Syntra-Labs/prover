@@ -54,3 +54,9 @@ add_executable(test_macro_decider
     tests/test_macro_decider.cpp
 )
 target_link_libraries(test_macro_decider macro_decider tree_rotor)
+
+add_executable(eval_live_lean_prover
+    src/eval_live_lean_prover.cpp
+)
+target_link_libraries(eval_live_lean_prover tree_rotor macro_decider geodesic_search)
+

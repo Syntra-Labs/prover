@@ -127,27 +127,34 @@ def run_authentic_proving():
 
         print(f"  [✗ REJECTED] Lean 4 kernel rejected Top-1: {top1_out.splitlines()[0] if top1_out else 'Non-zero exit'}")
 
-        # 3. Speculative Fallback to Top-2
-        print(f"  --> Speculative Fallback: Submitting Top-2 ('{top2_tactic}') to Lean 4 kernel...")
-        top2_ok, top2_out = verify_with_real_lean(thm["lean_code"], top2_tactic)
+        # 3. Speculative Fallback across candidates
+        proved = False
+        for rank_idx, (cand_tactic, _) in enumerate(tactic_scores[1:], start=2):
+            if cand_tactic == "assumption" and not has_hyp:
+                continue
+            print(f"  --> Speculative Fallback: Submitting Candidate #{rank_idx} ('{cand_tactic}') to Lean 4 kernel...")
+            fb_ok, fb_out = verify_with_real_lean(thm["lean_code"], cand_tactic)
+            if fb_ok:
+                print(f"  [✓ Q.E.D. CERTIFIED] Lean 4 kernel ACCEPTED proof on Candidate #{rank_idx} fallback!")
+                results.append({
+                    "theorem": thm["name"],
+                    "proved": True,
+                    "tried_tactic": cand_tactic,
+                    "rank": f"Top-{rank_idx} Fallback",
+                    "notes": "Certified by Lean 4 kernel"
+                })
+                proved = True
+                break
+            else:
+                print(f"  [✗ REJECTED] Lean 4 kernel rejected #{rank_idx}: {fb_out.splitlines()[0] if fb_out else 'Non-zero exit'}")
 
-        if top2_ok:
-            print(f"  [✓ Q.E.D. CERTIFIED] Lean 4 kernel ACCEPTED proof on Top-2 fallback!")
-            results.append({
-                "theorem": thm["name"],
-                "proved": True,
-                "tried_tactic": top2_tactic,
-                "rank": "Top-2 Fallback",
-                "notes": "Certified by Lean 4 kernel"
-            })
-        else:
-            print(f"  [✗ REJECTED] Lean 4 kernel rejected Top-2: {top2_out.splitlines()[0] if top2_out else 'Non-zero exit'}")
+        if not proved:
             results.append({
                 "theorem": thm["name"],
                 "proved": False,
                 "tried_tactic": f"{top1_tactic} / {top2_tactic}",
                 "rank": "Failed",
-                "notes": top2_out.splitlines()[0] if top2_out else "Failed"
+                "notes": "All tried tactics rejected by Lean 4 kernel"
             })
 
     # Summary

@@ -374,3 +374,31 @@ def test_macro_decider_and_policy_r4_gates():
     top1, top5 = run_authentic_benchmark(num_steps=20)
     assert top1 >= 0.30, f"Policy-R4 Top-1 accuracy {top1:.4f} < 0.30"
     assert top5 >= 0.65, f"Policy-R4 Top-5 accuracy {top5:.4f} < 0.65"
+
+
+def test_live_lean4_kernel_prover_invariants():
+    """
+    Permanent Gate for Live Lean 4 Compiler Verification (100% QED):
+    1. Executes compiled C++ live Lean 4 prover binary (`eval_live_lean_prover`).
+    2. Verifies 100.0% (5/5) theorems certified on the real Lean 4 compiler binary (`lean`).
+    """
+    import subprocess
+
+    build_dir = REPO_ROOT / "build"
+    my_bin_dir = build_dir / "my_bin"
+    bin_path = my_bin_dir / "eval_live_lean_prover"
+
+    if not bin_path.exists():
+        subprocess.run(
+            ["g++", "-std=c++11", "-O2",
+             str(REPO_ROOT / "src/eval_live_lean_prover.cpp"),
+             str(REPO_ROOT / "src/tree_rotor.cpp"),
+             str(REPO_ROOT / "src/search/macro_decider.cpp"),
+             str(REPO_ROOT / "src/search/geodesic_search.cpp"),
+             "-o", str(bin_path)],
+            check=True
+        )
+    res = subprocess.run([str(bin_path)], capture_output=True, text=True, check=True)
+    assert "LIVE LEAN 4 VERIFICATION RESULTS: 5 / 5 (100.0%) certified." in res.stdout
+    assert "[PASS] 100% of benchmark theorems certified by Lean 4 kernel in pure C++." in res.stdout
+
