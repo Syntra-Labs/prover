@@ -64,28 +64,37 @@ add_executable(prover
 )
 target_link_libraries(prover tree_rotor macro_decider geodesic_search)
 
-# 6. Test Executables
+# 6. Test Executables & CTest Registration
+enable_testing()
+
 add_executable(test_tree_rotor
     tests/test_tree_rotor.cpp
 )
 target_link_libraries(test_tree_rotor tree_rotor)
+add_test(NAME test_tree_rotor COMMAND test_tree_rotor)
 
 add_executable(test_r4_runner_cpp
     tests/test_r4_runner_cpp.cpp
 )
 target_link_libraries(test_r4_runner_cpp r4_runner tree_rotor)
+add_test(NAME test_r4_runner_cpp COMMAND test_r4_runner_cpp)
 
 add_executable(test_speculative_geodesic_search
     tests/test_speculative_geodesic_search.cpp
 )
 target_link_libraries(test_speculative_geodesic_search geodesic_search)
+add_test(NAME test_speculative_geodesic_search COMMAND test_speculative_geodesic_search)
 
 add_executable(test_macro_decider
     tests/test_macro_decider.cpp
 )
 target_link_libraries(test_macro_decider macro_decider tree_rotor)
+add_test(NAME test_macro_decider COMMAND test_macro_decider)
 
 add_executable(test_code_oracle
     tests/test_code_oracle.cpp
 )
 target_link_libraries(test_code_oracle code_oracle)
+add_test(NAME test_code_oracle COMMAND test_code_oracle)
+
+add_test(NAME manifold_selftest COMMAND manifold selftest)
