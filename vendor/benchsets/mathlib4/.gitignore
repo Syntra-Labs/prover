@@ -1,8 +1,0 @@
-# Ignore large raw JSON data files from git tracking
-*.json
-*.jsonl
-*.bin
-*.tar.gz
-# But keep sample and README
-!val_sample.json
-!README.md

@@ -11,7 +11,7 @@ import torch
 import torch.nn.functional as F
 from src.eval.tactic_eval import TacticEvaluator
 from src.eval.r4_runner import find_latest_checkpoint
-from src.eval.authentic_lean_prover import CANONICAL_TACTIC_POOL
+from src.eval.tactic_vocab import CANONICAL_TACTIC_POOL
 from src.ir.canonicalizer import canonicalize, invert_sigma
 
 @pytest.fixture(scope="module")
@@ -46,9 +46,29 @@ def test_alpha_equivalence_invariance(evaluator):
     assert sim_nm >= 0.95, f"Alpha-equivalence sim(n, m) {sim_nm:.4f} < 0.95"
     assert sim_diff < 0.85, f"Divergent theorem sim {sim_diff:.4f} unexpectedly high"
 
-# TODO(stab-jitter | tier:B | blocks:[policy-r4]): Test R4 quaternion scan stability under trivial whitespace perturbation.
+# TODO(stab-jitter | tier:B | blocks:[policy-r4] | status:DONE): Test R4 quaternion scan stability under trivial whitespace perturbation.
 # Description: Verify tokenization jitter does not catastrophically rotate R4's quaternion scan.
 # Criterion: assert: top5_overlap_fraction >= 0.80
+def test_quaternion_scan_stability(evaluator):
+    """R4 quaternion scan stability under whitespace perturbation."""
+    base = "theorem nat_add_zero (n : Nat) : n + 0 = n := by"
+    jittered = "theorem  nat_add_zero  (n : Nat)  :  n + 0 = n  :=  by\n\n"
+    c_base, _, _ = canonicalize(base)
+    c_jittered, _, _ = canonicalize(jittered)
+
+    def get_top5(p: str):
+        scores = []
+        for tac in CANONICAL_TACTIC_POOL:
+            res = evaluator.evaluate_tactic_likelihood(p, tac)
+            scores.append((tac, res["cross_entropy_loss"]))
+        scores.sort(key=lambda x: x[1])
+        return [x[0] for x in scores[:5]]
+
+    top5_base = get_top5(c_base)
+    top5_jittered = get_top5(c_jittered)
+    top5_overlap_fraction = len(set(top5_base) & set(top5_jittered)) / 5.0
+    assert top5_overlap_fraction >= 0.80, f"Quaternion scan overlap {top5_overlap_fraction:.2f} < 0.80"
+
 def test_tokenization_jitter_stability(evaluator):
     """Failure Mode 7: BPE Tokenization Alignment Jitter."""
     base_prompt = "theorem nat_add_zero (n : Nat) : n + 0 = n := by"

@@ -80,6 +80,22 @@ def parse_tactic_step(tactic_str: str) -> Tuple[int, str, str]:
     tactic_id = TACTIC_MAP.get(normalized_head, TACTIC_MAP["unknown"])
     return tactic_id, normalized_head, args
 
+
+CANONICAL_TACTIC_POOL = [
+    "rfl",
+    "simp",
+    "omega",
+    "exact h",
+    "assumption",
+    "decide",
+    "aesop",
+    "linarith",
+    "ring",
+    "intro h",
+    "cases h",
+    "exact ⟨h.right, h.left⟩",
+]
+
 if __name__ == "__main__":
     test_cases = [
         "rfl",

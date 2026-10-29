@@ -49,6 +49,7 @@ MacroActionKind MacroActionDecider::decide_kind(const Quat& z_s, const std::stri
     return MacroActionKind::Tier2B_ForwardInvention;
 }
 
+// TODO(analyze-how-the-macro-decider-an): "analyze how the macro decider and the speculative geodesic router are interacting with each other to prove lean4 theorems for the proofnet benchmar."
 MacroRouteDecision MacroActionDecider::route(const GoalState& state) const {
     MacroRouteDecision dec;
     dec.geodesic_distance = state.z.normalize().geodesic_dist(z_qed_);
