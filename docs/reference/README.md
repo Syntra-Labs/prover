@@ -22,7 +22,7 @@ Many of these documents date from earlier stages of the project, and some descri
 
 | Folder | What is in it |
 |---|---|
-| [`adr/`](adr/0000-template.md) | Architecture decision records ADR-0001 to ADR-0006, and a template. Some describe paths that were later superseded; each keeps its original text. |
+| [`adr/`](adr/0000-template.md) | Architecture decision records ADR-0001 to ADR-0007, and a template. Some describe paths that were later superseded; each keeps its original text. |
 | [`specs/`](specs/2026-10-19-rust-bpe-trainer-design.md) | Design specifications: the Rust BPE trainer and the admission anchor audit (both 19 Oct 2026) |
 
 The ADRs and specifications moved here from `docs/adr/` and `docs/specs/` on 20 October 2026.
