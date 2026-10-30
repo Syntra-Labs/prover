@@ -36,7 +36,17 @@ if ! command -v cargo &>/dev/null; then
 else
     echo "Rust is already installed: $(cargo --version)"
 fi
-export PATH="$HOME/.cargo/bin:$PATH"
+if [ -d "/usr/local/cuda-13.0" ]; then
+    export CUDA_HOME="/usr/local/cuda-13.0"
+elif [ -d "/usr/local/cuda" ]; then
+    export CUDA_HOME="/usr/local/cuda"
+fi
+if [ -n "${CUDA_HOME:-}" ]; then
+    export PATH="$CUDA_HOME/bin:$HOME/.cargo/bin:$PATH"
+    export LD_LIBRARY_PATH="$CUDA_HOME/lib64:${LD_LIBRARY_PATH:-}"
+else
+    export PATH="$HOME/.cargo/bin:$PATH"
+fi
 
 echo "==> [3/4] Installing Python requirements..."
 pip install --quiet --upgrade pip

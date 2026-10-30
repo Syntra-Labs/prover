@@ -1,4 +1,4 @@
-#include "../src/search/macro_decider.hpp"
+#include "search/macro_decider.hpp"
 #include <cassert>
 #include <iostream>
 #include <unordered_set>

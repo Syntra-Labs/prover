@@ -21,7 +21,6 @@ DEFAULT_MAX_PR_LINES = 500
 # Paths or patterns to exclude from line counting (e.g. submodule pointers, binary data)
 EXCLUDED_PATTERNS = [
     "vendor/leandojo",
-    "vendor/prismpm",
     "vendor/uor-r4",
     "reports/",
     "logs/",

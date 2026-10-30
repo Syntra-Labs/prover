@@ -1,4 +1,4 @@
-#include "../src/tree_rotor.hpp"
+#include "geometry/tree_rotor.hpp"
 #include <cassert>
 #include <iostream>
 #include <cmath>

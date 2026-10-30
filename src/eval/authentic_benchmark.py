@@ -185,7 +185,7 @@ def e8_quantize(hidden_1024: list) -> list:
 def voronoi_snap(quantized: list) -> int:
     return int(sum(quantized) % max(len(TACTIC_MAP), 1)) if TACTIC_MAP else 0
 
-# TODO(macro-decider | tier:C | depends_on:[policy-r4, search-action, search-dead-tactic]):
+# TODO(macro-decider | tier:C | depends_on:[search-action, search-dead-tactic]):
 # Description: Implement Tier 1 Macro-Action Decider gating terminating procedures vs forward lemma invention with genuine kernel feedback.
 # Criterion: review: "Decider routes proof search between Tier 2A direct tactics and Tier 2B forward invention with kernel feedback"
 

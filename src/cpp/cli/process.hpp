@@ -7,7 +7,7 @@
 #include <regex>
 #include <vector>
 #include <cstring>
-#include "parseJsonl.hpp"
+#include "io/parseJsonl.hpp"
 
 extern "C" {
 #include <unistd.h>

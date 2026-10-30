@@ -13,6 +13,15 @@ INIT_MODEL="${INIT_MODEL:-$REPO_ROOT/reports/r4_colab_run_20261017_053354/model}
 
 if command -v nvidia-smi &>/dev/null && nvidia-smi &>/dev/null; then
     DEFAULT_DEVICE="cuda"
+    if [ -d "/usr/local/cuda-13.0" ]; then
+        export CUDA_HOME="/usr/local/cuda-13.0"
+    elif [ -d "/usr/local/cuda" ]; then
+        export CUDA_HOME="/usr/local/cuda"
+    fi
+    if [ -n "${CUDA_HOME:-}" ]; then
+        export PATH="$CUDA_HOME/bin:$PATH"
+        export LD_LIBRARY_PATH="$CUDA_HOME/lib64:${LD_LIBRARY_PATH:-}"
+    fi
 else
     DEFAULT_DEVICE="cpu"
 fi

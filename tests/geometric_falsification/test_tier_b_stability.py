@@ -19,7 +19,7 @@ def evaluator():
     ckpt = find_latest_checkpoint()
     return TacticEvaluator(ckpt, device="cpu")
 
-# TODO(stab-alpha | tier:B | blocks:[policy-r4]): Test R4 hidden representation stability under bound variable renaming.
+# TODO(stab-alpha | tier:B): Test R4 hidden representation stability under bound variable renaming.
 # Description: Verify alpha-equivalent goals (e.g., n -> k) produce geometrically adjacent representations.
 # Criterion: assert: min_cosine_sim >= 0.95
 def test_alpha_equivalence_invariance(evaluator):

@@ -1,4 +1,4 @@
-#include "../src/search/geodesic_search.hpp"
+#include "search/geodesic_search.hpp"
 #include <cassert>
 #include <iostream>
 #include <vector>

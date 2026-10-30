@@ -11,8 +11,13 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-# Target source file defaults to src/process.cpp relative to repository root
-TARGET_FILE="${1:-"${REPO_ROOT}/src/process.cpp"}"
+# Target source file defaults to src/cpp/cli/process.cpp (or legacy src/process.cpp) relative to repository root
+if [ -f "${REPO_ROOT}/src/cpp/cli/process.cpp" ] && [ ! -f "${REPO_ROOT}/src/process.cpp" ]; then
+    DEFAULT_TARGET="${REPO_ROOT}/src/cpp/cli/process.cpp"
+else
+    DEFAULT_TARGET="${REPO_ROOT}/src/process.cpp"
+fi
+TARGET_FILE="${1:-"$DEFAULT_TARGET"}"
 
 # Resolve relative paths
 if [[ "$TARGET_FILE" != /* ]]; then

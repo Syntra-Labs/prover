@@ -7,7 +7,7 @@
  */
 std::vector<std::string> parseJsonl(bool formal) {
 
-    std::string path = "../vendor/benchsets/miniF2F_v2/datasets/miniF2F_v2s.jsonl";
+    std::string path = "../benchmarks/miniF2F_v2/datasets/miniF2F_v2s.jsonl";
     std::ifstream ifs(path,std::ios::in);
 
     std::vector<std::string> statements;

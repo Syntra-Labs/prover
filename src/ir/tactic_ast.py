@@ -1,8 +1,8 @@
-# TODO(ast-admissibility-gate | tier:B | depends_on:[kernel-expr-ir] | blocks:[least-action-prover]):
+# TODO(ast-admissibility-gate | tier:B):
 # Description: Filter LemmaTable and Lean.Expr constructors via structural target/hypothesis head unification to assign E=+inf to inadmissible moves before operator scoring.
 # Criterion: assert: candidate_reduction_ratio >= 0.90 and ground_truth_retained == True
 
-# TODO(tree-rotor-operator | tier:B | depends_on:[kernel-expr-ir] | blocks:[least-action-prover]):
+# TODO(tree-rotor-operator | tier:B):
 # Description: Fold Lean.Expr DAG bottom-up via non-commutative quaternion/rotor operators on S3 without fixed sliding-window truncation.
 # Criterion: assert: window_truncation_rate == 0.0 and non_commutative_asymmetry > 0.0
 """

@@ -15,9 +15,11 @@ import numpy as np
 from collections import Counter
 
 
-# TODO(gate-e8 | tier:A | blocks:[unify-bundle]): Test Conway-Sloane E8 Voronoi lattice snapping dispersion on R4 representations.
+# TODO(gate-e8 | tier:A): Test Conway-Sloane E8 Voronoi lattice snapping dispersion on R4 representations.
 # Description: Test whether 50 Mathlib tactic proof states collapse into the origin E8 cell or disperse across cells.
 # Criterion: assert: shannon_entropy >= 3.0 and max_cell_fraction <= 0.25
+@pytest.mark.tier_a
+@pytest.mark.gate_e8
 def test_voronoi_dispersion(mathlib_sample, authentic_e8_snap):
     """
     Failure Mode 2: E8 Lattice Mode Collapse.
@@ -64,16 +66,13 @@ def test_voronoi_dispersion(mathlib_sample, authentic_e8_snap):
     origin_count = counts.get(origin_cell, 0)
 
     print(f"\n[gate-e8] Total evaluated proof states: {total}")
-    print(f"[gate-e8] Unique E8 lattice cells occupied: {len(counts)} / {total}")
-    print(f"[gate-e8] Shannon Entropy: {shannon_entropy:.4f} bits (Uniform Max = {np.log2(total):.2f})")
-    print(f"[gate-e8] Max cell concentration: {max_fraction * 100:.1f}%")
     print(f"[gate-e8] Origin cell (0..0) hits: {origin_count}/{total} ({origin_count/total*100:.1f}%)")
 
     assert shannon_entropy >= 3.0, f"Mode collapse detected: low entropy ({shannon_entropy:.2f} < 3.0)"
     assert max_fraction <= 0.25, f"Cell monopolization: single cell captures {max_fraction * 100:.1f}% (> 25%)"
 
 
-# TODO(gate-r4-token | tier:A | blocks:[unify-bundle]): Verify R4 geometric tokenizer associative prefix scan integrity on Mathlib 4 syntax.
+# TODO(gate-r4-token | tier:A): Verify R4 geometric tokenizer associative prefix scan integrity on Mathlib 4 syntax.
 # Description: Verify R4 tokenizer converts Lean 4 formal syntax into associative tokens without out-of-vocabulary dropping.
 # Criterion: assert: unk_rate < 0.001 and tokens_per_step > 5
 def test_r4_tokenizer_integrity(mathlib_sample, r4_inspect_bin):

@@ -16,7 +16,11 @@ ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 @pytest.fixture(scope="session")
 def mathlib_sample():
     """Loads authentic Mathlib 4 validation proof steps."""
-    sample_file = ROOT_DIR / "vendor/benchsets/mathlib4/val_sample.json"
+    sample_file = ROOT_DIR / "benchmarks/mathlib4/val_sample.json"
+    if not sample_file.exists():
+        sample_file = Path("/content/prover/benchmarks/mathlib4/val_sample.json")
+    if not sample_file.exists():
+        sample_file = ROOT_DIR / "vendor/benchsets/mathlib4/val_sample.json"
     if not sample_file.exists():
         sample_file = Path("/content/prover/vendor/benchsets/mathlib4/val_sample.json")
     if not sample_file.exists():

@@ -48,6 +48,8 @@ std::vector<TacticCandidate> SpeculativeGeodesicRouter::rank_candidates(
     return candidates;
 }
 
+// NOTE: Rank candidates by cosine similarity to tangent vector (geodesic direction on S³).
+// Higher score = closer alignment with the direction of steepest descent in proof space.
 std::tuple<std::vector<TacticCandidate>, double, bool> SpeculativeGeodesicRouter::select_speculative_queue(
     const std::vector<TacticCandidate>& ranked
 ) const {

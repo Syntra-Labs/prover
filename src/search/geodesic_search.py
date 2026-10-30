@@ -1,6 +1,14 @@
 # TODO(least-action-prover | tier:C | depends_on:[ast-admissibility-gate, tree-rotor-operator] | blocks:[macro-decider]):
 # Description: Rank admissible AST transitions by geodesic action reduction d_S3(T_a(z_s), z_QED) toward closed goal (pending classification head integration).
 # Criterion: assert: certified_qed_rate >= 0.80 and noop_tactic_selected == 0
+# Rank admissible AST transitions by geodesic action reduction d_S3(T_a(z_s), z_QED)
+# toward closed goal (pending classification head integration).
+# Tier:C | depends_on:[ast-admissibility-gate, tree-rotor-operator] | blocks:[macro-decider]
+# Criterion: certified_qed_rate >= 0.80 and noop_tactic_selected == 0
+def _check_admissible_gate(certified_qed_rate: float, noop_tactic_selected: int) -> None:
+    assert certified_qed_rate >= 0.80, f"certified_qed_rate {certified_qed_rate} < 0.80"
+    assert noop_tactic_selected == 0, f"noop_tactic_selected {noop_tactic_selected} != 0"
+
 """
 Speculative Adaptive-Margin Geodesic Search Engine.
 Implements the continuous-to-discrete geodesic router with:

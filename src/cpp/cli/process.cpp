@@ -3,7 +3,7 @@
 #include <vector>
 #include <cmath>
 #include <memory>
-#include "tree_rotor.hpp"
+#include "geometry/tree_rotor.hpp"
 #include "search/macro_decider.hpp"
 #include "search/geodesic_search.hpp"
 

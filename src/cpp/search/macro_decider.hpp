@@ -1,7 +1,7 @@
 #ifndef MACRO_DECIDER_HPP
 #define MACRO_DECIDER_HPP
 
-#include "../tree_rotor.hpp"
+#include "geometry/tree_rotor.hpp"
 #include <functional>
 #include <string>
 #include <vector>
@@ -9,6 +9,8 @@
 namespace syn {
 
 enum class MacroActionKind {
+// Tier2A = direct terminating tactics (exact, rfl, simp, etc.)
+// Tier2B = forward invention tactics (apply, rw, intro, cases, induction)
     Tier2A_DirectTerminating,
     Tier2B_ForwardInvention
 };

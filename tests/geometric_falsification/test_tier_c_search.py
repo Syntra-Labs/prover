@@ -25,7 +25,7 @@ def evaluator():
     ckpt = find_latest_checkpoint()
     return TacticEvaluator(ckpt, device="cpu")
 
-# TODO(search-action | tier:C | depends_on:[unify-bundle] | blocks:[macro-decider]):
+# TODO(search-action | tier:C | blocks:[macro-decider]):
 # Description: Verify total geometric action is finite and stationary on complete Mathlib 4 proof paths.
 # Criterion: assert: valid_action < divergent_action and not is_inf(valid_action)
 def test_path_action_boundedness(evaluator):
@@ -65,7 +65,7 @@ def test_path_action_boundedness(evaluator):
     assert not np.isnan(valid_action)
     assert valid_action < divergent_action, f"Valid action {valid_action:.4f} not less than divergent {divergent_action:.4f}"
 
-# TODO(search-dead-tactic | tier:C | depends_on:[policy-r4] | blocks:[macro-decider]):
+# TODO(search-dead-tactic | tier:C | blocks:[macro-decider]):
 # Description: Verify policy suppresses trivial no-op tactics (simp/ring self-loops) when inapplicable.
 # Criterion: assert: noop_tactic_prob < 0.10 on non-applicable states
 def test_dead_tactic_suppression(evaluator):
