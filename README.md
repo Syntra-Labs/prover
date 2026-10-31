@@ -61,6 +61,9 @@ The core objective of this repository is to close the loop between language mode
 ### 4. Local Model Process Control
 - **Process Controller** (`src/process.cpp`, `src/process.hpp`): Spawns local inference runtimes (such as `llama-cli` hosting DeepSeek-Prover or Qwen-Coder) via `fork()`, `execv()`, and bidirectional pipes, reading streaming generation and handling process termination upon turn completion.
 
+### 5. Native Logical Compiler (`lgcc`)
+- **Logical Bug & Invariant Compiler** (`crates/lgcc`): Native Rust logical compiler and AST extractor. Validates formal specifications, parses LexLean contract blocks (`spec/lean_parser.rs`), checks semantic code invariants, and provides problem stub generation (`lgcc skeletonize`).
+
 ---
 
 ## Quick Start

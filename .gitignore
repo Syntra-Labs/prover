@@ -9,3 +9,4 @@ __pycache__/
 *.so
 .DS_Store
 *.log
+crates/lgcc/target/
