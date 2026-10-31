@@ -1,6 +1,6 @@
 # R4 Coding Engine & Manifold Substrate
 
-A high-performance geometric substrate, lifecycle router, and deterministic code oracle derived from [UOR-R4](https://github.com/UOR-Foundation/uor-r4) and [synvim](https://github.com/wwwportal/synvim), focused on codebase understanding, architectural task placement, and test-driven code contract verification.
+A high-performance geometric substrate, lifecycle router, and deterministic code oracle derived from [uor-r4](https://github.com/Syntra-Labs/uor-r4) and [synvim](https://github.com/Syntra-Labs/synvim), focused on codebase understanding, architectural task placement, and test-driven code contract verification.
 
 ## Architecture
 
